@@ -19,6 +19,9 @@ async fn main() {
     let app = Router::new()
         .route("/chunks/{id}", post(handlers::save_chunk))
         .route("/chunks/{id}", get(handlers::get_chunk))
+        .route("/room/{id}", post(handlers::create_room))
+        .route("/room/{id}", get(handlers::get_room_content))
+        .route("/room/{id}/chunk", post(handlers::add_chunk_to_room))
         .with_state(shared_state);
 
     // run our app with hyper, listening globally on port 3000
