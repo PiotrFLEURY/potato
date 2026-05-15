@@ -1,9 +1,10 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:potato/models/data/room.dart';
+import 'package:potato/models/encryption/encryption_service.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
 import 'package:potato/viewmodels/rooms_repository_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
@@ -37,9 +38,8 @@ class HomePage extends ConsumerWidget {
                 Image.asset('assets/images/potato_mascot.png', width: 256),
                 const Spacer(),
                 PotatoButton.primary(
-                  onPressed: () => _sendFile(context, ref, (chunkId) {
-                    // Handle success
-                    _showSuccessBottomsheet(context, chunkId);
+                  onPressed: () => _sendFile(context, ref, (code) {
+                    _showSuccessBottomsheet(context, code);
                   }),
                   child: Text('Send file'),
                 ),
@@ -57,11 +57,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  void _showSuccessBottomsheet(BuildContext context, String chunkId) {
-    const backendUrl = String.fromEnvironment(
-      'BACKEND_URL',
-      defaultValue: 'http://localhost:8080',
-    );
+  void _showSuccessBottomsheet(BuildContext context, String code) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -70,11 +66,42 @@ class HomePage extends ConsumerWidget {
           spacing: 16,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('File sent successfully!'),
+            Text(
+              'File sent successfully!',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              'Share this code to let others download the file:',
+              textAlign: TextAlign.center,
+            ),
             QrImageView(
-              data: '$backendUrl/chunks/$chunkId',
+              data: code,
               version: QrVersions.auto,
-              size: 200.0,
+              size: 180.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  code,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 6,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: code));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Code copied!')),
+                    );
+                  },
+                ),
+              ],
             ),
             PotatoButton.primary(
               onPressed: () => Navigator.of(context).pop(),
@@ -89,19 +116,17 @@ class HomePage extends ConsumerWidget {
   Future<void> _sendFile(
     BuildContext context,
     WidgetRef ref,
-    void Function(String chunkId) onSuccess,
+    void Function(String code) onSuccess,
   ) async {
-    // 1. Pick file
     final result = await FilePicker.platform.pickFiles(allowMultiple: false);
-    // 2. If file is picked, navigate to send page with file path
     if (result != null && result.files.isNotEmpty) {
       final filename = result.files.first.name;
       final filePath = result.files.first.path;
       if (filePath != null) {
+        final code = EncryptionService.generateCode();
         final uuid = Uuid().v4();
         final File file = File(filePath);
         final fileBytes = await file.readAsBytes();
-        // Split in chunks of 1MB and upload each chunk, then add to room
         final chunkSize = 1024 * 1024; // 1MB
         final totalChunks = (fileBytes.length / chunkSize).ceil();
         final List<String> chunkIds = [];
@@ -112,19 +137,27 @@ class HomePage extends ConsumerWidget {
             start,
             end > fileBytes.length ? fileBytes.length : end,
           );
+          final encryptedBytes = await EncryptionService.encryptBytes(
+            code,
+            Uint8List.fromList(chunkBytes),
+          );
           final chunkId = '$uuid-$i';
           await ref
               .read(chunksRepositoriesProvider)
-              .uploadChunk(chunkId, chunkBytes);
+              .uploadChunk(chunkId, encryptedBytes);
           chunkIds.add(chunkId);
         }
+        final encryptedFilename = await EncryptionService.encryptString(
+          code,
+          filename,
+        );
         await ref
             .read(roomsRepositoryProvider)
             .addChunkToRoom(
-              'default_room',
-              ChunkInfos(filename: filename, chunks: chunkIds),
+              code,
+              ChunkInfos(filename: encryptedFilename, chunks: chunkIds),
             );
-        onSuccess(uuid);
+        onSuccess(code);
       }
     }
   }
