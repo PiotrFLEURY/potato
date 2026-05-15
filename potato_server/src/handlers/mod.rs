@@ -42,6 +42,10 @@ pub async fn add_chunk_to_room(
     Path(room_id): Path<String>,
     Json(chunk_info): Json<ChunkInfos>,
 ) {
+    println!(
+        "Adding chunk with file name: {} to room with id: {}",
+        chunk_info.file_name, room_id
+    );
     repositories::add_chunk_to_room(state, room_id, chunk_info).await;
 }
 
@@ -54,11 +58,8 @@ pub async fn get_room_content(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<Json<Room>, StatusCode> {
-    let rooms = state.rooms.lock().unwrap();
-    if let Some(room) = rooms.get(&id) {
-        Ok(Json(room.clone()))
-    } else {
-        eprintln!("Room with id: {} not found", id);
-        Err(StatusCode::NOT_FOUND)
-    }
+    print!("Fetching content for room with id: {}", id);
+    let mut rooms = state.rooms.lock().unwrap();
+    let room = rooms.entry(id).or_insert(Room::new());
+    Ok(Json(room.clone()))
 }

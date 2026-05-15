@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:potato/models/data/room.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart' hide Headers;
 
@@ -18,5 +19,19 @@ abstract class PotatoApi {
 
   @GET('/chunks/{chunkId}')
   @Headers(<String, dynamic>{'Accept': 'application/octet-stream'})
+  @DioResponseType(ResponseType.bytes)
   Future<Uint8List> downloadChunk(@Path('chunkId') String chunkId);
+
+  @POST('/rooms/{roomId}')
+  Future<void> createRoom(@Path('roomId') String roomId);
+
+  @GET('/rooms/{roomId}')
+  Future<Room> getRoom(@Path('roomId') String roomId);
+
+  @POST('/rooms/{roomId}/chunks')
+  @Headers(<String, dynamic>{'Content-Type': 'application/json'})
+  Future<void> addChunkToRoom(
+    @Path('roomId') String roomId,
+    @Body() ChunkInfos chunkInfos,
+  );
 }

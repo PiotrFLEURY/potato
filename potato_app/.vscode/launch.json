@@ -9,7 +9,7 @@
             "request": "launch",
             "type": "dart",
             "args": [
-                "--dart-define=BACKEND_URL=http://localhost:3000"
+                "--dart-define-from-file=.env"
             ]
         },
         {

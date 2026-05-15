@@ -22,7 +22,7 @@ pub async fn create_room(state: Arc<AppState>, room_id: String) {
 }
 
 pub async fn add_chunk_to_room(state: Arc<AppState>, room_id: String, chunk_info: ChunkInfos) {
-    if let Some(room) = state.rooms.lock().unwrap().get_mut(&room_id) {
-        room.chunks_infos.push(chunk_info);
-    }
+    let mut rooms = state.rooms.lock().unwrap();
+    let room = rooms.entry(room_id).or_insert(Room::new());
+    room.chunks_infos.push(chunk_info);
 }

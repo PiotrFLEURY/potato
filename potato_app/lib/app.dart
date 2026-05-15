@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:potato/views/files/files_page.dart';
 import 'package:potato/views/home/home_page.dart';
 
 class PotatoApp extends StatelessWidget {
@@ -9,7 +10,10 @@ class PotatoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Potato',
       theme: ThemeData(primarySwatch: Colors.brown),
-      routes: {'/': (context) => const HomePage()},
+      routes: {
+        '/': (context) => const HomePage(),
+        '/files': (context) => const FilesPage(),
+      },
       initialRoute: '/',
     );
   }
