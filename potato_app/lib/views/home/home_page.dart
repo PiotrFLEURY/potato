@@ -38,9 +38,11 @@ class HomePage extends ConsumerWidget {
                 Image.asset('assets/images/potato_mascot.png', width: 256),
                 const Spacer(),
                 PotatoButton.primary(
-                  onPressed: () => _sendFile(context, ref, (code) {
-                    _showSuccessBottomsheet(context, code);
-                  }),
+                  onPressed: () async {
+                    _sendFile(context, ref, (code) {
+                      _showSuccessBottomsheet(context, code);
+                    });
+                  },
                   child: Text('Send file'),
                 ),
                 PotatoButton.secondary(
@@ -55,6 +57,46 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<FileType> _selectFileType(BuildContext context) async {
+    FileType? selectedType;
+    selectedType = await showDialog<FileType>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Select file type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Any'),
+              onTap: () {
+                Navigator.of(context).pop(FileType.any);
+              },
+            ),
+            ListTile(
+              title: Text('Images'),
+              onTap: () {
+                Navigator.of(context).pop(FileType.image);
+              },
+            ),
+            ListTile(
+              title: Text('Videos'),
+              onTap: () {
+                Navigator.of(context).pop(FileType.video);
+              },
+            ),
+            ListTile(
+              title: Text('Audio'),
+              onTap: () {
+                Navigator.of(context).pop(FileType.audio);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+    return selectedType ?? FileType.any;
   }
 
   void _showSuccessBottomsheet(BuildContext context, String code) {
@@ -74,11 +116,7 @@ class HomePage extends ConsumerWidget {
               'Share this code to let others download the file:',
               textAlign: TextAlign.center,
             ),
-            QrImageView(
-              data: code,
-              version: QrVersions.auto,
-              size: 180.0,
-            ),
+            QrImageView(data: code, version: QrVersions.auto, size: 180.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -118,7 +156,11 @@ class HomePage extends ConsumerWidget {
     WidgetRef ref,
     void Function(String code) onSuccess,
   ) async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    final fileType = await _selectFileType(context);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: fileType,
+    );
     if (result != null && result.files.isNotEmpty) {
       final filename = result.files.first.name;
       final filePath = result.files.first.path;
