@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
+use std::time::Duration;
 
-use sea_orm::{
-    ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, Set,
-};
 use sea_orm::sea_query::{Expr, OnConflict};
+use sea_orm::sqlx::types::chrono::Utc;
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, Set};
 
 use crate::entities::{chunks, rooms};
 use crate::state::{ChunkInfos, Room};
@@ -36,7 +36,11 @@ pub async fn fetch_chunk(db: &DatabaseConnection, id: &str) -> Option<Vec<u8>> {
 }
 
 pub async fn create_room(db: &DatabaseConnection, id: String) {
-    let model = rooms::ActiveModel { id: Set(id) };
+    let expires_at = Utc::now() + Duration::from_hours(1);
+    let model = rooms::ActiveModel {
+        id: Set(id),
+        expires_at: Set(expires_at),
+    };
     let _ = rooms::Entity::insert(model)
         .on_conflict(
             OnConflict::column(rooms::Column::Id)
@@ -47,11 +51,7 @@ pub async fn create_room(db: &DatabaseConnection, id: String) {
         .await;
 }
 
-pub async fn add_chunk_to_room(
-    db: &DatabaseConnection,
-    room_id: String,
-    chunk_info: ChunkInfos,
-) {
+pub async fn add_chunk_to_room(db: &DatabaseConnection, room_id: String, chunk_info: ChunkInfos) {
     create_room(db, room_id.clone()).await;
 
     for (order, chunk_id) in chunk_info.chunks.iter().enumerate() {

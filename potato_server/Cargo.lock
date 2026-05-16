@@ -1012,6 +1012,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
+name = "logs"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "218ee85e6f2ed7e15253cbfcb61bf960ea797b4d8869d36f1a95bbc7fdc3686d"
+dependencies = [
+ "log",
+ "time",
+]
+
+[[package]]
 name = "mac_address"
 version = "1.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1281,6 +1291,7 @@ name = "potato_server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "logs",
  "sea-orm",
  "serde",
  "serde_json",
