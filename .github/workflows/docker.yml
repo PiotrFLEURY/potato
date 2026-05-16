@@ -19,5 +19,5 @@ jobs:
         working-directory: ./potato_server
         run: |
           docker login --username PiotrFLEURY --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          docker build -t ghcr.io/${{ github.repository }}:latest .
-          docker push ghcr.io/${{ github.repository }}:latest
+          docker build -t ghcr.io/piotrfleury/potato:latest .
+          docker push ghcr.io/piotrfleury/potato:latest
