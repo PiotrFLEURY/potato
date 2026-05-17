@@ -151,6 +151,7 @@ class HomePage extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(context.tr('close')),
             ),
+            const SizedBox(height: 48),
           ],
         ),
       ),

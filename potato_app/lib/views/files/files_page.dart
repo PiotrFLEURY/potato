@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
@@ -68,6 +69,14 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                 },
                 child: Text(context.tr('load_files')),
               ),
+              Builder(
+                builder: (context) {
+                  return PotatoButton.secondary(
+                    onPressed: () => _showQrScanner(context),
+                    child: Icon(Icons.qr_code),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -116,6 +125,36 @@ class _FilesPageState extends ConsumerState<FilesPage> {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
+  }
+
+  Future<void> _showQrScanner(BuildContext context) async {
+    final code = await showModalBottomSheet<String?>(
+      context: context,
+      builder: (context) {
+        return Column(
+          children: [
+            const SizedBox(height: 16),
+            Text(
+              context.tr('scan_qr_code_to_get_files'),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: MobileScanner(
+                onDetect: (capture) {
+                  final code = capture.barcodes.first.displayValue;
+                  Navigator.of(context).pop(code);
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    setState(() {
+      _activeCode = code;
+      _codeController.text = code ?? '';
+    });
   }
 }
 

@@ -75,5 +75,7 @@
 		<string>en</string>
 		<string>fr</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Potato needs access to the camera for QR code scanning.</string>
 </dict>
 </plist>
