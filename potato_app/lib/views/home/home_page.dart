@@ -18,57 +18,56 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            if (kDebugMode)
-              IconButton(
-                icon: const Icon(Icons.translate),
-                onPressed: () {
-                  final newLocale = context.locale.languageCode == 'en'
-                      ? 'fr'
-                      : 'en';
-                  context.setLocale(Locale(newLocale));
-                },
-              ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: Column(
-              spacing: 8,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  context.tr('app_title'),
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  context.tr('app_description'),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                ),
-                const Spacer(),
-                Image.asset('assets/images/potato_mascot.png', width: 256),
-                const Spacer(),
-                PotatoButton.primary(
-                  onPressed: () async {
-                    _sendFile(context, ref, (code) {
-                      _showSuccessBottomsheet(context, code);
-                    });
-                  },
-                  child: Text(context.tr('send_file')),
-                ),
-                PotatoButton.secondary(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/files');
-                  },
-                  child: Text(context.tr('see_files')),
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.translate),
+              onPressed: () {
+                final newLocale = context.locale.languageCode == 'en'
+                    ? 'fr'
+                    : 'en';
+                context.setLocale(Locale(newLocale));
+              },
             ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            spacing: 8,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                context.tr('app_title'),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+              ),
+              Text(
+                context.tr('app_description'),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              ),
+              const Spacer(),
+              Image.asset('assets/images/potato_mascot.png', width: 256),
+              const Spacer(),
+              PotatoButton.primary(
+                onPressed: () async {
+                  _sendFile(context, ref, (code) {
+                    _showSuccessBottomsheet(context, code);
+                  });
+                },
+                child: Text(context.tr('send_file')),
+              ),
+              PotatoButton.secondary(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/files');
+                },
+                child: Text(context.tr('see_files')),
+              ),
+              const SizedBox(height: 48),
+            ],
           ),
         ),
       ),
