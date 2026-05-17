@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
   Widget build(BuildContext context) {
     if (_activeCode == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Files')),
+        appBar: AppBar(title: Text(context.tr('files_page_title'))),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -44,16 +45,16 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                 width: 100,
                 height: 100,
               ),
-              const Text(
-                'Enter the code shared with you to access the files.',
+              Text(
+                context.tr('enter_code_to_see_files'),
                 textAlign: TextAlign.center,
               ),
               TextField(
                 controller: _codeController,
-                decoration: const InputDecoration(
-                  labelText: 'Code',
-                  hintText: 'e.g. ABCD1234',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr('code'),
+                  hintText: context.tr('code_hint'),
+                  border: const OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.characters,
                 maxLength: 8,
@@ -65,7 +66,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                     setState(() => _activeCode = code);
                   }
                 },
-                child: const Text('Load files'),
+                child: Text(context.tr('load_files')),
               ),
             ],
           ),
@@ -77,7 +78,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
     return room.when(
       data: (room) => Scaffold(
         appBar: AppBar(
-          title: Text('Files – $_activeCode'),
+          title: Text(context.tr('files_for_code', args: [_activeCode!])),
           leading: BackButton(
             onPressed: () => setState(() {
               _activeCode = null;
@@ -86,7 +87,11 @@ class _FilesPageState extends ConsumerState<FilesPage> {
           ),
         ),
         body: room.chunkInfos.isEmpty
-            ? const Center(child: Text('No files found for this code.'))
+            ? Center(
+                child: Text(
+                  context.tr('no_files_found_for_code', args: [_activeCode!]),
+                ),
+              )
             : ListView.builder(
                 itemCount: room.chunkInfos.length,
                 itemBuilder: (context, index) => _FileListItem(
@@ -95,10 +100,19 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                 ),
               ),
       ),
-      error: (error, stack) => Scaffold(
-        appBar: AppBar(title: const Text('Files')),
-        body: Center(child: Text('Error: $error')),
-      ),
+      error: (error, stack) {
+        if (kDebugMode) {
+          debugPrintStack(label: 'Room load error: $error', stackTrace: stack);
+        }
+        return Scaffold(
+          appBar: AppBar(title: Text(context.tr('files_page_title'))),
+          body: Center(
+            child: Text(
+              context.tr('failed_to_load_files_for_code', args: [_activeCode!]),
+            ),
+          ),
+        );
+      },
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
@@ -132,7 +146,9 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
       );
       if (mounted) setState(() => _decryptedFilename = name);
     } catch (_) {
-      if (mounted) setState(() => _decryptedFilename = '(decryption failed)');
+      if (mounted) {
+        setState(() => _decryptedFilename = context.tr('decryption_failed'));
+      }
     }
   }
 
@@ -202,7 +218,7 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
 
     final fileBytes = await _fileBytes();
 
-    if (fileBytes.isEmpty) {
+    if (fileBytes.isEmpty || _decryptedFilename == null) {
       return;
     }
 
@@ -210,12 +226,12 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text(_decryptedFilename ?? 'Preview'),
+          title: Text(_decryptedFilename!),
           content: Image.memory(fileBytes),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(context.tr('close')),
             ),
           ],
         ),
@@ -229,11 +245,7 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
 
     final filename = _decryptedFilename ?? widget.chunkInfos.filename;
 
-    await FilePicker.platform.saveFile(
-      dialogTitle: 'Enregistrer le fichier',
-      fileName: filename,
-      bytes: fileBytes,
-    );
+    await FilePicker.platform.saveFile(fileName: filename, bytes: fileBytes);
   }
 
   Future<void> _saveToGallery(BuildContext context) async {

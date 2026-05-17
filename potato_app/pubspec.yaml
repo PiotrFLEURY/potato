@@ -44,6 +44,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_serializable: ^6.13.0
   gal: ^2.3.2
+  easy_localization: ^3.0.8
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +75,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/translations/
     - assets/images/potato_mascot.png
     - assets/images/potato_eggman.png
   

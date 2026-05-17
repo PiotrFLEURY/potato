@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +20,20 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            if (kDebugMode)
+              IconButton(
+                icon: const Icon(Icons.translate),
+                onPressed: () {
+                  final newLocale = context.locale.languageCode == 'en'
+                      ? 'fr'
+                      : 'en';
+                  context.setLocale(Locale(newLocale));
+                },
+              ),
+          ],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
@@ -27,11 +43,11 @@ class HomePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Potato',
+                  context.tr('app_title'),
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Push Over The Air To',
+                  context.tr('app_description'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                 ),
                 const Spacer(),
@@ -43,13 +59,13 @@ class HomePage extends ConsumerWidget {
                       _showSuccessBottomsheet(context, code);
                     });
                   },
-                  child: Text('Send file'),
+                  child: Text(context.tr('send_file')),
                 ),
                 PotatoButton.secondary(
                   onPressed: () {
                     Navigator.of(context).pushNamed('/files');
                   },
-                  child: Text('See files'),
+                  child: Text(context.tr('see_files')),
                 ),
               ],
             ),
@@ -64,32 +80,26 @@ class HomePage extends ConsumerWidget {
     selectedType = await showDialog<FileType>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Select file type'),
+        title: Text(context.tr('select_file_type')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text('Any'),
+              title: Text(context.tr('file_type_any')),
               onTap: () {
                 Navigator.of(context).pop(FileType.any);
               },
             ),
             ListTile(
-              title: Text('Images'),
+              title: Text(context.tr('file_type_image')),
               onTap: () {
                 Navigator.of(context).pop(FileType.image);
               },
             ),
             ListTile(
-              title: Text('Videos'),
+              title: Text(context.tr('file_type_video')),
               onTap: () {
                 Navigator.of(context).pop(FileType.video);
-              },
-            ),
-            ListTile(
-              title: Text('Audio'),
-              onTap: () {
-                Navigator.of(context).pop(FileType.audio);
               },
             ),
           ],
@@ -109,11 +119,11 @@ class HomePage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'File sent successfully!',
+              context.tr('file_sent_successfully'),
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             Text(
-              'Share this code to let others download the file:',
+              context.tr('share_code_to_download'),
               textAlign: TextAlign.center,
             ),
             QrImageView(data: code, version: QrVersions.auto, size: 180.0),
@@ -140,7 +150,7 @@ class HomePage extends ConsumerWidget {
             ),
             PotatoButton.primary(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: Text(context.tr('close')),
             ),
           ],
         ),

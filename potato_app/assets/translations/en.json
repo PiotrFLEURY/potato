@@ -1,0 +1,23 @@
+{
+    "app_title": "Potato",
+    "app_description": "Push Over The Air To",
+    "send_file": "Send file",
+    "see_files": "See files",
+    "select_file_type": "Select file type",
+    "file_type_any": "Any",
+    "file_type_image": "Image",
+    "file_type_video": "Video",
+    "file_type_audio": "Audio",
+    "file_sent_successfully": "File sent successfully!",
+    "share_code_to_download": "Share this code to let others download the file:",
+    "files_page_title": "Files",
+    "enter_code_to_see_files": "Enter the code shared with you to access the files.",
+    "code": "Code",
+    "code_hint": "e.g. ABCD1234",
+    "load_files": "Load files",
+    "files_for_code": "Files – {}",
+    "no_files_found_for_code": "No files found for this code.",
+    "decryption_failed": "(decryption failed)",
+    "close": "Close",
+    "failed_to_load_files_for_code": "Oops! Something went wrong while loading files for code '{}'."
+}
