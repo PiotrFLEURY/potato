@@ -134,9 +134,6 @@ class HomePage extends ConsumerWidget {
                   icon: const Icon(Icons.copy),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: code));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Code copied!')),
-                    );
                   },
                 ),
               ],

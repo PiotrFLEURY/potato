@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gal/gal.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
@@ -145,10 +146,20 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
         height: 40,
       ),
       title: Text(_decryptedFilename ?? '…'),
-      subtitle: Text('${widget.chunkInfos.chunks.length} chunk(s)'),
-      trailing: IconButton(
-        icon: const Icon(Icons.file_download_outlined),
-        onPressed: () => _downloadFile(context),
+      subtitle: Row(
+        children: [
+          // Download
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined),
+            onPressed: () => _downloadFile(context),
+          ),
+          // Save to gallery
+          if (Platform.isIOS || Platform.isAndroid)
+            IconButton(
+              icon: const Icon(Icons.photo_library_outlined),
+              onPressed: () => _saveToGallery(context),
+            ),
+        ],
       ),
     );
   }
@@ -170,13 +181,6 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
     } catch (e, stack) {
       if (kDebugMode) {
         debugPrintStack(label: 'Download error: $e', stackTrace: stack);
-      }
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Download failed: wrong code or corrupted data.'),
-          ),
-        );
       }
     }
     return Uint8List(0);
@@ -220,20 +224,30 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
   }
 
   Future<void> _downloadFile(BuildContext context) async {
-    final savePath = await FilePicker.platform.getDirectoryPath();
-    if (savePath == null) return;
+    Uint8List fileBytes = await _fileBytes();
+    if (fileBytes.isEmpty) return;
+
+    final filename = _decryptedFilename ?? widget.chunkInfos.filename;
+
+    await FilePicker.platform.saveFile(
+      dialogTitle: 'Enregistrer le fichier',
+      fileName: filename,
+      bytes: fileBytes,
+    );
+  }
+
+  Future<void> _saveToGallery(BuildContext context) async {
+    if (!isPicture()) {
+      return;
+    }
 
     Uint8List fileBytes = await _fileBytes();
     if (fileBytes.isEmpty) return;
 
     final filename = _decryptedFilename ?? widget.chunkInfos.filename;
-    final filePath = '$savePath/$filename';
-    await File(filePath).writeAsBytes(fileBytes);
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Saved: $filename')));
-    }
+    await Gal.requestAccess();
+
+    await Gal.putImageBytes(fileBytes, name: filename);
   }
 }
