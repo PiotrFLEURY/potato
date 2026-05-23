@@ -31,14 +31,24 @@ class EncryptionService {
   }
 
   // Returns: nonce(12) + mac(16) + ciphertext
-  static Future<Uint8List> encryptBytes(String code, Uint8List plaintext) async {
+  static Future<Uint8List> encryptBytes(
+    String code,
+    Uint8List plaintext,
+  ) async {
     final key = await _deriveKey(code);
     final box = await _cipher.encrypt(plaintext, secretKey: key);
-    return Uint8List.fromList([...box.nonce, ...box.mac.bytes, ...box.cipherText]);
+    return Uint8List.fromList([
+      ...box.nonce,
+      ...box.mac.bytes,
+      ...box.cipherText,
+    ]);
   }
 
   // Expects: nonce(12) + mac(16) + ciphertext
-  static Future<Uint8List> decryptBytes(String code, Uint8List encrypted) async {
+  static Future<Uint8List> decryptBytes(
+    String code,
+    Uint8List encrypted,
+  ) async {
     final key = await _deriveKey(code);
     final nonce = encrypted.sublist(0, 12);
     final mac = Mac(encrypted.sublist(12, 28));
@@ -51,7 +61,10 @@ class EncryptionService {
   }
 
   static Future<String> encryptString(String code, String plaintext) async {
-    final encrypted = await encryptBytes(code, Uint8List.fromList(utf8.encode(plaintext)));
+    final encrypted = await encryptBytes(
+      code,
+      Uint8List.fromList(utf8.encode(plaintext)),
+    );
     return base64Url.encode(encrypted);
   }
 

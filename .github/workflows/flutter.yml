@@ -1,0 +1,46 @@
+name: Build Flutter
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.pub-cache
+            ./potato_app/.dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+      
+      - uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Install dependencies
+        working-directory: ./potato_app
+        run: flutter pub get
+
+      - name: Analyze code
+        working-directory: ./potato_app
+        run: dart analyze
+    
+      - name: Format code
+        working-directory: ./potato_app
+        run: dart format --set-exit-if-changed .
+      
+      - name: Run tests
+        working-directory: ./potato_app
+        run: flutter test
+
+      - name: Build APK
+        working-directory: ./potato_app
+        run: flutter build apk --debug

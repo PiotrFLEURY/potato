@@ -19,5 +19,9 @@
     "no_files_found_for_code": "No files found for this code.",
     "decryption_failed": "(decryption failed)",
     "close": "Close",
-    "failed_to_load_files_for_code": "Oops! Something went wrong while loading files for code '{}'."
+    "failed_to_load_files_for_code": "Oops! Something went wrong while loading files for code '{}'.",
+    "filed_saved_to_gallery_title": "Saved to Gallery",
+    "filed_saved_to_gallery_message": "The image has been saved to your gallery successfully.",
+    "filed_saved_to_files_title": "Saved to Files",
+    "filed_saved_to_files_message": "The file has been saved to your files successfully."
 }

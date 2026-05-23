@@ -19,5 +19,9 @@
     "no_files_found_for_code": "Aucun fichier trouvé pour ce code.",
     "decryption_failed": "(échec du déchiffrement)",
     "close": "Fermer",
-    "failed_to_load_files_for_code": "Oups ! Quelque chose s'est mal passé lors du chargement des fichiers pour le code '{}'."
+    "failed_to_load_files_for_code": "Oups ! Quelque chose s'est mal passé lors du chargement des fichiers pour le code '{}'.",
+    "filed_saved_to_gallery_title": "Enregistré dans la galerie",
+    "filed_saved_to_gallery_message": "L'image a été enregistrée dans votre galerie avec succès.",
+    "filed_saved_to_files_title": "Enregistré dans les fichiers",
+    "filed_saved_to_files_message": "Le fichier a été enregistré dans vos fichiers avec succès."
 }
