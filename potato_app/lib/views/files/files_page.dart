@@ -9,7 +9,7 @@ import 'package:gal/gal.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
-import 'package:potato/viewmodels/chunks_repository_provider.dart';
+import 'package:potato/viewmodels/chunk_infos_bytes_provider.dart';
 import 'package:potato/viewmodels/room_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/success/success_dialog.dart';
@@ -172,6 +172,10 @@ class _FileListItem extends ConsumerStatefulWidget {
 class _FileListItemState extends ConsumerState<_FileListItem> {
   String? _decryptedFilename;
 
+  Uint8List? _fileBytes;
+
+  bool _loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -192,54 +196,83 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => _previewFile(context),
-      leading: Image.asset(
-        'assets/images/potato_eggman.png',
-        width: 40,
-        height: 40,
-      ),
-      title: Text(_decryptedFilename ?? '…'),
-      subtitle: Row(
-        children: [
-          // Download
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined),
-            onPressed: () => _downloadFile(context),
-          ),
-          // Save to gallery
-          if ((Platform.isIOS || Platform.isAndroid) && isPicture())
-            IconButton(
-              icon: const Icon(Icons.photo_library_outlined),
-              onPressed: () => _saveToGallery(context),
-            ),
-        ],
-      ),
+  Future<void> _preloadFileBytes() async {
+    if (_fileBytes != null) return;
+    setState(() {
+      _loading = true;
+    });
+    final bytes = await ref.read(
+      chunkInfosBytesProvider(widget.code, widget.chunkInfos).future,
     );
+    if (bytes.isNotEmpty) {
+      setState(() {
+        _fileBytes = bytes;
+        _loading = false;
+      });
+    }
   }
 
-  Future<Uint8List> _fileBytes() async {
-    try {
-      Uint8List fileBytes = Uint8List(0);
-      for (final chunkId in widget.chunkInfos.chunks) {
-        final encryptedBytes = await ref
-            .read(chunksRepositoriesProvider)
-            .downloadChunk(chunkId);
-        final decryptedBytes = await EncryptionService.decryptBytes(
-          widget.code,
-          encryptedBytes,
-        );
-        fileBytes = Uint8List.fromList([...fileBytes, ...decryptedBytes]);
-      }
-      return fileBytes;
-    } catch (e, stack) {
-      if (kDebugMode) {
-        debugPrintStack(label: 'Download error: $e', stackTrace: stack);
-      }
-    }
-    return Uint8List(0);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(8),
+        onTap: () => _previewFile(context),
+        leading: _loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : _fileBytes != null
+            ? Image.memory(
+                _fileBytes!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+              )
+            : Image.asset(
+                'assets/images/potato_eggman.png',
+                width: 48,
+                height: 48,
+              ),
+        title: Text(_decryptedFilename ?? '…'),
+        trailing: PopupMenuButton(
+          icon: const Icon(Icons.more_vert),
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                value: 'preview',
+                child: Text(context.tr('popup_menu_preview')),
+              ),
+              PopupMenuItem(
+                value: 'download',
+                child: Text(context.tr('popup_menu_download')),
+              ),
+              if ((Platform.isIOS || Platform.isAndroid) && isPicture())
+                PopupMenuItem(
+                  value: 'save_to_gallery',
+                  child: Text(context.tr('popup_menu_save_to_gallery')),
+                ),
+            ];
+          },
+          onSelected: (value) {
+            switch (value) {
+              case 'preview':
+                _previewFile(context);
+                break;
+              case 'download':
+                _downloadFile(context);
+                break;
+              case 'save_to_gallery':
+                _saveToGallery(context);
+                break;
+            }
+          },
+        ),
+      ),
+    );
   }
 
   bool isPicture() {
@@ -258,36 +291,49 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
       return;
     }
 
-    final fileBytes = await _fileBytes();
+    await _preloadFileBytes();
 
-    if (fileBytes.isEmpty || _decryptedFilename == null) {
+    if (_fileBytes == null || _decryptedFilename == null) {
       return;
     }
 
     if (context.mounted) {
-      showDialog(
+      showModalBottomSheet(
+        isScrollControlled: true,
+        showDragHandle: true,
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text(_decryptedFilename!),
-          content: Image.memory(fileBytes),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(context.tr('close')),
-            ),
-          ],
+        builder: (context) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 48.0),
+          child: Column(
+            spacing: 16,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Image.memory(_fileBytes!),
+              ),
+              Text(_decryptedFilename!),
+              PotatoButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('close')),
+              ),
+            ],
+          ),
         ),
       );
     }
   }
 
   Future<void> _downloadFile(BuildContext context) async {
-    Uint8List fileBytes = await _fileBytes();
-    if (fileBytes.isEmpty) return;
+    await _preloadFileBytes();
+    if (_fileBytes == null) return;
 
     final filename = _decryptedFilename ?? widget.chunkInfos.filename;
 
-    await FilePicker.platform.saveFile(fileName: filename, bytes: fileBytes);
+    await FilePicker.platform.saveFile(fileName: filename, bytes: _fileBytes);
 
     if (context.mounted) {
       showDialog(
@@ -305,14 +351,14 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
       return;
     }
 
-    Uint8List fileBytes = await _fileBytes();
-    if (fileBytes.isEmpty) return;
+    await _preloadFileBytes();
+    if (_fileBytes == null) return;
 
     final filename = _decryptedFilename ?? widget.chunkInfos.filename;
 
     await Gal.requestAccess();
 
-    await Gal.putImageBytes(fileBytes, name: filename);
+    await Gal.putImageBytes(_fileBytes!, name: filename);
 
     if (context.mounted) {
       showDialog(

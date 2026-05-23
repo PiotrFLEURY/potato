@@ -23,5 +23,8 @@
     "filed_saved_to_gallery_title": "Enregistré dans la galerie",
     "filed_saved_to_gallery_message": "L'image a été enregistrée dans votre galerie avec succès.",
     "filed_saved_to_files_title": "Enregistré dans les fichiers",
-    "filed_saved_to_files_message": "Le fichier a été enregistré dans vos fichiers avec succès."
+    "filed_saved_to_files_message": "Le fichier a été enregistré dans vos fichiers avec succès.",
+    "popup_menu_preview": "Aperçu",
+    "popup_menu_download": "Télécharger",
+    "popup_menu_save_to_gallery": "Enregistrer dans la galerie"
 }

@@ -23,5 +23,8 @@
     "filed_saved_to_gallery_title": "Saved to Gallery",
     "filed_saved_to_gallery_message": "The image has been saved to your gallery successfully.",
     "filed_saved_to_files_title": "Saved to Files",
-    "filed_saved_to_files_message": "The file has been saved to your files successfully."
+    "filed_saved_to_files_message": "The file has been saved to your files successfully.",
+    "popup_menu_preview": "Preview",
+    "popup_menu_download": "Download",
+    "popup_menu_save_to_gallery": "Save to Gallery"
 }
