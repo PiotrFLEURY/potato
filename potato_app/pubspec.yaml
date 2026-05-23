@@ -79,6 +79,8 @@ flutter:
     - assets/translations/
     - assets/images/potato_mascot.png
     - assets/images/potato_eggman.png
+    - assets/images/potato_loading.png
+    - assets/images/potato_success.png
   
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -12,6 +12,7 @@ import 'package:potato/models/encryption/encryption_service.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
 import 'package:potato/viewmodels/room_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
+import 'package:potato/views/success/success_dialog.dart';
 
 class FilesPage extends ConsumerStatefulWidget {
   const FilesPage({super.key});
@@ -209,7 +210,7 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
             onPressed: () => _downloadFile(context),
           ),
           // Save to gallery
-          if (Platform.isIOS || Platform.isAndroid)
+          if ((Platform.isIOS || Platform.isAndroid) && isPicture())
             IconButton(
               icon: const Icon(Icons.photo_library_outlined),
               onPressed: () => _saveToGallery(context),
@@ -247,7 +248,9 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
         lowerName.endsWith('.jpg') ||
         lowerName.endsWith('.jpeg') ||
         lowerName.endsWith('.bmp') ||
-        lowerName.endsWith('.gif');
+        lowerName.endsWith('.gif') ||
+        lowerName.endsWith('.webp') ||
+        lowerName.endsWith('.heic');
   }
 
   Future<void> _previewFile(BuildContext context) async {
@@ -285,6 +288,16 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
     final filename = _decryptedFilename ?? widget.chunkInfos.filename;
 
     await FilePicker.platform.saveFile(fileName: filename, bytes: fileBytes);
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => SuccessDialog(
+          title: context.tr('filed_saved_to_files_title'),
+          message: context.tr('filed_saved_to_files_message'),
+        ),
+      );
+    }
   }
 
   Future<void> _saveToGallery(BuildContext context) async {
@@ -300,5 +313,15 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
     await Gal.requestAccess();
 
     await Gal.putImageBytes(fileBytes, name: filename);
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => SuccessDialog(
+          title: context.tr('filed_saved_to_gallery_title'),
+          message: context.tr('filed_saved_to_gallery_message'),
+        ),
+      );
+    }
   }
 }

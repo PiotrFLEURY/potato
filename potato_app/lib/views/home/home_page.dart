@@ -8,8 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
+import 'package:potato/viewmodels/loading_state_provider.dart';
 import 'package:potato/viewmodels/rooms_repository_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
+import 'package:potato/views/loading/loading_barrier.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -18,56 +20,58 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          if (kDebugMode)
-            IconButton(
-              icon: const Icon(Icons.translate),
-              onPressed: () {
-                final newLocale = context.locale.languageCode == 'en'
-                    ? 'fr'
-                    : 'en';
-                context.setLocale(Locale(newLocale));
-              },
-            ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            spacing: 8,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                context.tr('app_title'),
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
-              ),
-              Text(
-                context.tr('app_description'),
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-              ),
-              const Spacer(),
-              Image.asset('assets/images/potato_mascot.png', width: 256),
-              const Spacer(),
-              PotatoButton.primary(
-                onPressed: () async {
-                  _sendFile(context, ref, (code) {
-                    _showSuccessBottomsheet(context, code);
-                  });
-                },
-                child: Text(context.tr('send_file')),
-              ),
-              PotatoButton.secondary(
+    return LoadingBarrier(
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            if (kDebugMode)
+              IconButton(
+                icon: const Icon(Icons.translate),
                 onPressed: () {
-                  Navigator.of(context).pushNamed('/files');
+                  final newLocale = context.locale.languageCode == 'en'
+                      ? 'fr'
+                      : 'en';
+                  context.setLocale(Locale(newLocale));
                 },
-                child: Text(context.tr('see_files')),
               ),
-              const SizedBox(height: 48),
-            ],
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  context.tr('app_title'),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  context.tr('app_description'),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                ),
+                const Spacer(),
+                Image.asset('assets/images/potato_mascot.png', width: 256),
+                const Spacer(),
+                PotatoButton.primary(
+                  onPressed: () async {
+                    _sendFile(context, ref, (code) {
+                      _showSuccessBottomsheet(context, code);
+                    });
+                  },
+                  child: Text(context.tr('send_file')),
+                ),
+                PotatoButton.secondary(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/files');
+                  },
+                  child: Text(context.tr('see_files')),
+                ),
+                const SizedBox(height: 48),
+              ],
+            ),
           ),
         ),
       ),
@@ -111,8 +115,9 @@ class HomePage extends ConsumerWidget {
   void _showSuccessBottomsheet(BuildContext context, String code) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
         child: Column(
           spacing: 16,
           mainAxisSize: MainAxisSize.min,
@@ -151,7 +156,6 @@ class HomePage extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(context.tr('close')),
             ),
-            const SizedBox(height: 48),
           ],
         ),
       ),
@@ -172,6 +176,7 @@ class HomePage extends ConsumerWidget {
       final filename = result.files.first.name;
       final filePath = result.files.first.path;
       if (filePath != null) {
+        ref.read(loadingStateProvider.notifier).setLoading(true);
         final code = EncryptionService.generateCode();
         final uuid = Uuid().v4();
         final File file = File(filePath);
@@ -206,6 +211,7 @@ class HomePage extends ConsumerWidget {
               code,
               ChunkInfos(filename: encryptedFilename, chunks: chunkIds),
             );
+        ref.read(loadingStateProvider.notifier).setLoading(false);
         onSuccess(code);
       }
     }
