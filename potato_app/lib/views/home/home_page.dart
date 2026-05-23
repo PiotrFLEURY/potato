@@ -169,51 +169,63 @@ class HomePage extends ConsumerWidget {
   ) async {
     final fileType = await _selectFileType(context);
     final result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
+      allowMultiple: true,
       type: fileType,
     );
     if (result != null && result.files.isNotEmpty) {
-      final filename = result.files.first.name;
-      final filePath = result.files.first.path;
-      if (filePath != null) {
-        ref.read(loadingStateProvider.notifier).setLoading(true);
-        final code = EncryptionService.generateCode();
-        final uuid = Uuid().v4();
-        final File file = File(filePath);
-        final fileBytes = await file.readAsBytes();
-        final chunkSize = 1024 * 1024; // 1MB
-        final totalChunks = (fileBytes.length / chunkSize).ceil();
-        final List<String> chunkIds = [];
-        for (int i = 0; i < totalChunks; i++) {
-          final start = i * chunkSize;
-          final end = start + chunkSize;
-          final chunkBytes = fileBytes.sublist(
-            start,
-            end > fileBytes.length ? fileBytes.length : end,
-          );
-          final encryptedBytes = await EncryptionService.encryptBytes(
-            code,
-            Uint8List.fromList(chunkBytes),
-          );
-          final chunkId = '$uuid-$i';
-          await ref
-              .read(chunksRepositoriesProvider)
-              .uploadChunk(chunkId, encryptedBytes);
-          chunkIds.add(chunkId);
-        }
-        final encryptedFilename = await EncryptionService.encryptString(
-          code,
-          filename,
-        );
-        await ref
-            .read(roomsRepositoryProvider)
-            .addChunkToRoom(
-              code,
-              ChunkInfos(filename: encryptedFilename, chunks: chunkIds),
-            );
-        ref.read(loadingStateProvider.notifier).setLoading(false);
-        onSuccess(code);
+      ref.read(loadingStateProvider.notifier).setLoading(true);
+      final code = EncryptionService.generateCode();
+
+      for (final file in result.files) {
+        await _uploadFile(file, code, ref);
       }
+
+      ref.read(loadingStateProvider.notifier).setLoading(false);
+      onSuccess(code);
+    }
+  }
+
+  Future<void> _uploadFile(
+    PlatformFile file,
+    String code,
+    WidgetRef ref,
+  ) async {
+    final filename = file.name;
+    final filePath = file.path;
+    if (filePath != null) {
+      final uuid = Uuid().v4();
+      final File file = File(filePath);
+      final fileBytes = await file.readAsBytes();
+      final chunkSize = ((1024 * 1024) / 2).ceil(); // 512 KB
+      final totalChunks = (fileBytes.length / chunkSize).ceil();
+      final List<String> chunkIds = [];
+      for (int i = 0; i < totalChunks; i++) {
+        final start = i * chunkSize;
+        final end = start + chunkSize;
+        final chunkBytes = fileBytes.sublist(
+          start,
+          end > fileBytes.length ? fileBytes.length : end,
+        );
+        final encryptedBytes = await EncryptionService.encryptBytes(
+          code,
+          Uint8List.fromList(chunkBytes),
+        );
+        final chunkId = '$uuid-$i';
+        await ref
+            .read(chunksRepositoriesProvider)
+            .uploadChunk(chunkId, encryptedBytes);
+        chunkIds.add(chunkId);
+      }
+      final encryptedFilename = await EncryptionService.encryptString(
+        code,
+        filename,
+      );
+      await ref
+          .read(roomsRepositoryProvider)
+          .addChunkToRoom(
+            code,
+            ChunkInfos(filename: encryptedFilename, chunks: chunkIds),
+          );
     }
   }
 }
