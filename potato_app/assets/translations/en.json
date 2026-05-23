@@ -26,5 +26,6 @@
     "filed_saved_to_files_message": "The file has been saved to your files successfully.",
     "popup_menu_preview": "Preview",
     "popup_menu_download": "Download",
-    "popup_menu_save_to_gallery": "Save to Gallery"
+    "popup_menu_save_to_gallery": "Save to Gallery",
+    "recent_short_codes": "Recent short codes"
 }

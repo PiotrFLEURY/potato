@@ -9,10 +9,13 @@ import 'package:gal/gal.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
+import 'package:potato/models/preferences/shared_preferences_constants.dart';
 import 'package:potato/viewmodels/chunk_infos_bytes_provider.dart';
 import 'package:potato/viewmodels/room_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
+import 'package:potato/views/files/short_codes_history.dart';
 import 'package:potato/views/success/success_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FilesPage extends ConsumerStatefulWidget {
   const FilesPage({super.key});
@@ -31,6 +34,28 @@ class _FilesPageState extends ConsumerState<FilesPage> {
     super.dispose();
   }
 
+  void _onCodeChanged(String code) {
+    if (code.isEmpty) {
+      return;
+    }
+    SharedPreferences.getInstance().then((prefs) {
+      final history =
+          prefs.getStringList(SharedPreferencesConstants.shortCodesHistory) ??
+          [];
+      if (code.isNotEmpty && !history.contains(code)) {
+        history.insert(0, code);
+        if (history.length > 10) {
+          history.removeLast();
+        }
+        prefs.setStringList(
+          SharedPreferencesConstants.shortCodesHistory,
+          history,
+        );
+      }
+    });
+    setState(() => _activeCode = code);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_activeCode == null) {
@@ -47,6 +72,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                 width: 100,
                 height: 100,
               ),
+
               Text(
                 context.tr('enter_code_to_see_files'),
                 textAlign: TextAlign.center,
@@ -65,7 +91,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                 onPressed: () {
                   final code = _codeController.text.trim().toUpperCase();
                   if (code.isNotEmpty) {
-                    setState(() => _activeCode = code);
+                    _onCodeChanged(code);
                   }
                 },
                 child: Text(context.tr('load_files')),
@@ -76,6 +102,12 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                     onPressed: () => _showQrScanner(context),
                     child: Icon(Icons.qr_code),
                   );
+                },
+              ),
+              ShortCodesHistory(
+                onTap: (code) {
+                  _codeController.text = code;
+                  _onCodeChanged(code);
                 },
               ),
             ],
@@ -153,7 +185,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
       },
     );
     setState(() {
-      _activeCode = code;
+      _onCodeChanged(code ?? '');
       _codeController.text = code ?? '';
     });
   }

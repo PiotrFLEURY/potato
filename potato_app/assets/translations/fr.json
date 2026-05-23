@@ -26,5 +26,6 @@
     "filed_saved_to_files_message": "Le fichier a été enregistré dans vos fichiers avec succès.",
     "popup_menu_preview": "Aperçu",
     "popup_menu_download": "Télécharger",
-    "popup_menu_save_to_gallery": "Enregistrer dans la galerie"
+    "popup_menu_save_to_gallery": "Enregistrer dans la galerie",
+    "recent_short_codes": "Codes récents"
 }
