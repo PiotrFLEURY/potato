@@ -15,6 +15,7 @@ import 'package:potato/viewmodels/short_codes_history_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/files/short_codes_history.dart';
 import 'package:potato/views/success/success_dialog.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class FilesPage extends ConsumerStatefulWidget {
   const FilesPage({super.key});
@@ -112,6 +113,12 @@ class _FilesPageState extends ConsumerState<FilesPage> {
               _codeController.clear();
             }),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.qr_code),
+              onPressed: () => _showRoomQrCode(context),
+            ),
+          ],
         ),
         body: room.chunkInfos.isEmpty
             ? Center(
@@ -142,6 +149,22 @@ class _FilesPageState extends ConsumerState<FilesPage> {
       },
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
+    );
+  }
+
+  Future<void> _showRoomQrCode(BuildContext context) async {
+    final code = _activeCode;
+    if (code == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 280,
+          child: Center(child: QrImageView(data: code, size: 200)),
+        ),
+      ),
     );
   }
 
