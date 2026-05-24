@@ -358,7 +358,7 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Image.memory(_fileBytes!),
+                child: Image.memory(_fileBytes!, height: 400),
               ),
               Text(_decryptedFilename!),
               PotatoButton(
