@@ -7,13 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
-import 'package:potato/models/preferences/shared_preferences_constants.dart';
 import 'package:potato/viewmodels/chunks_repository_provider.dart';
 import 'package:potato/viewmodels/loading_state_provider.dart';
 import 'package:potato/viewmodels/rooms_repository_provider.dart';
+import 'package:potato/viewmodels/short_codes_history_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/loading/loading_barrier.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -60,7 +59,9 @@ class HomePage extends ConsumerWidget {
                 PotatoButton.primary(
                   onPressed: () async {
                     _sendFile(context, ref, (code) {
-                      _historizeCode(code);
+                      ref
+                          .read(shortCodeHistoryProvider.notifier)
+                          .historizeCode(code);
                       _showSuccessBottomsheet(context, code);
                     });
                   },
@@ -79,21 +80,6 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  void _historizeCode(String code) {
-    SharedPreferences.getInstance().then((prefs) {
-      final history =
-          prefs.getStringList(SharedPreferencesConstants.shortCodesHistory) ??
-          [];
-      if (!history.contains(code)) {
-        history.insert(0, code);
-        prefs.setStringList(
-          SharedPreferencesConstants.shortCodesHistory,
-          history,
-        );
-      }
-    });
   }
 
   Future<FileType> _selectFileType(BuildContext context) async {
