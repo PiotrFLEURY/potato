@@ -257,7 +257,7 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : _fileBytes != null
+            : _fileBytes != null && isPicture()
             ? Image.memory(
                 _fileBytes!,
                 width: 48,
@@ -270,14 +270,16 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
                 height: 48,
               ),
         title: Text(_decryptedFilename ?? '…'),
+        subtitle: Text(_humanReadableFileSize()),
         trailing: PopupMenuButton(
           icon: const Icon(Icons.more_vert),
           itemBuilder: (context) {
             return [
-              PopupMenuItem(
-                value: 'preview',
-                child: Text(context.tr('popup_menu_preview')),
-              ),
+              if (isPicture())
+                PopupMenuItem(
+                  value: 'preview',
+                  child: Text(context.tr('popup_menu_preview')),
+                ),
               PopupMenuItem(
                 value: 'download',
                 child: Text(context.tr('popup_menu_download')),
@@ -305,6 +307,17 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
         ),
       ),
     );
+  }
+
+  String _humanReadableFileSize() {
+    if (_fileBytes == null) return '…';
+    int size = _fileBytes!.length;
+    if (size < 1024) return '$size B';
+    if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(2)} KB';
+    if (size < 1024 * 1024 * 1024) {
+      return '${(size / (1024 * 1024)).toStringAsFixed(2)} MB';
+    }
+    return '${(size / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
   bool isPicture() {
