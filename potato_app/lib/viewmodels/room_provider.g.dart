@@ -58,7 +58,7 @@ final class RoomProvider
   }
 }
 
-String _$roomHash() => r'29ffec3a006a99ffb744a8090742d4af02d1417e';
+String _$roomHash() => r'9eb09fd8c6f6a9239ec8c99f9f62bc8a760388d2';
 
 final class RoomFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Room>, String> {

@@ -9,13 +9,12 @@ import 'package:gal/gal.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:potato/models/data/room.dart';
 import 'package:potato/models/encryption/encryption_service.dart';
-import 'package:potato/models/preferences/shared_preferences_constants.dart';
 import 'package:potato/viewmodels/chunk_infos_bytes_provider.dart';
 import 'package:potato/viewmodels/room_provider.dart';
+import 'package:potato/viewmodels/short_codes_history_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/files/short_codes_history.dart';
 import 'package:potato/views/success/success_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FilesPage extends ConsumerStatefulWidget {
   const FilesPage({super.key});
@@ -38,21 +37,7 @@ class _FilesPageState extends ConsumerState<FilesPage> {
     if (code.isEmpty) {
       return;
     }
-    SharedPreferences.getInstance().then((prefs) {
-      final history =
-          prefs.getStringList(SharedPreferencesConstants.shortCodesHistory) ??
-          [];
-      if (code.isNotEmpty && !history.contains(code)) {
-        history.insert(0, code);
-        if (history.length > 10) {
-          history.removeLast();
-        }
-        prefs.setStringList(
-          SharedPreferencesConstants.shortCodesHistory,
-          history,
-        );
-      }
-    });
+    ref.read(shortCodeHistoryProvider.notifier).historizeCode(code);
     setState(() => _activeCode = code);
   }
 

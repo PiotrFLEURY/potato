@@ -2,19 +2,19 @@ import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:potato/models/preferences/shared_preferences_constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:potato/viewmodels/short_codes_history_provider.dart';
 
-class ShortCodesHistory extends StatefulWidget {
+class ShortCodesHistory extends ConsumerStatefulWidget {
   const ShortCodesHistory({super.key, required this.onTap});
 
   final void Function(String code) onTap;
 
   @override
-  State<ShortCodesHistory> createState() => _ShortCodesHistoryState();
+  ConsumerState<ShortCodesHistory> createState() => _ShortCodesHistoryState();
 }
 
-class _ShortCodesHistoryState extends State<ShortCodesHistory> {
+class _ShortCodesHistoryState extends ConsumerState<ShortCodesHistory> {
   List<String>? shortCodes;
 
   @override
@@ -24,11 +24,9 @@ class _ShortCodesHistoryState extends State<ShortCodesHistory> {
   }
 
   Future<void> _loadHistory() async {
-    SharedPreferences.getInstance().then((prefs) {
+    ref.read(shortCodeHistoryProvider.future).then((history) {
       setState(() {
-        shortCodes =
-            prefs.getStringList(SharedPreferencesConstants.shortCodesHistory) ??
-            [];
+        shortCodes = history;
       });
     });
   }
