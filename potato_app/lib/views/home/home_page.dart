@@ -191,6 +191,14 @@ class HomePage extends ConsumerWidget {
       type: fileType,
     );
     if (result != null && result.files.isNotEmpty) {
+      final validSize = _checkFileSize(result.files);
+      if (!validSize) {
+        ref.read(loadingStateProvider.notifier).setLoading(false);
+        if (context.mounted) {
+          _showInvalidFileSizeDialog(context);
+        }
+        return;
+      }
       ref.read(loadingStateProvider.notifier).setLoading(true);
       final code = EncryptionService.generateCode();
 
@@ -201,6 +209,33 @@ class HomePage extends ConsumerWidget {
       ref.read(loadingStateProvider.notifier).setLoading(false);
       onSuccess(code);
     }
+  }
+
+  void _showInvalidFileSizeDialog(BuildContext context) {
+    if (!context.mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.tr('file_too_large')),
+        content: Text(context.tr('file_size_limit_explanation')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _checkFileSize(List<PlatformFile> files) {
+    const maxSize = 10 * 1024 * 1024; // 10 Mo
+    for (final file in files) {
+      if (file.size > maxSize) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<void> _uploadFile(
