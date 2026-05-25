@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -233,8 +233,8 @@ class HomePage extends ConsumerWidget {
     final filePath = file.path;
     if (filePath != null) {
       final uuid = Uuid().v4();
-      final File file = File(filePath);
-      final fileBytes = await file.readAsBytes();
+      final XFile xFile = file.xFile;
+      final fileBytes = await xFile.readAsBytes();
       final chunkSize = ((1024 * 1024) / 2).ceil(); // 512 KB
       final totalChunks = (fileBytes.length / chunkSize).ceil();
       final List<String> chunkIds = [];

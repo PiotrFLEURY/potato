@@ -2,10 +2,40 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - feat/web
 
 jobs:
-  build-and-push:
+  build-and-push-app:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Install dependencies
+        working-directory: ./potato_app
+        run: flutter pub get
+
+      - name: Build Web
+        working-directory: ./potato_app
+        run: flutter build web --release --dart-define=BACKEND_URL=${{ secrets.BACKEND_URL }} --dart-define=ENCRYPTION_SALT=${{ secrets.ENCRYPTION_SALT }}
+
+      - name: Build and push Docker image
+        working-directory: ./potato_app
+        run: |
+          docker login --username PiotrFLEURY --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+          docker build -t ghcr.io/piotrfleury/potato:potato-app-latest .
+          docker push ghcr.io/piotrfleury/potato:potato-app-latest
+
+  build-and-push-server:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,5 +49,5 @@ jobs:
         working-directory: ./potato_server
         run: |
           docker login --username PiotrFLEURY --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          docker build -t ghcr.io/piotrfleury/potato:latest .
-          docker push ghcr.io/piotrfleury/potato:latest
+          docker build -t ghcr.io/piotrfleury/potato:potato-server-latest .
+          docker push ghcr.io/piotrfleury/potato:potato-server-latest

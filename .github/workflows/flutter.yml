@@ -20,7 +20,7 @@ jobs:
             ./potato_app/.dart_tool
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
       
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
