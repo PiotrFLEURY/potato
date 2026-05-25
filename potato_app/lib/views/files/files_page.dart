@@ -292,7 +292,9 @@ class _FileListItemState extends ConsumerState<_FileListItem> {
                 value: 'download',
                 child: Text(context.tr('popup_menu_download')),
               ),
-              if ((Platform.isIOS || Platform.isAndroid) && isPicture())
+              if (!kIsWeb &&
+                  (Platform.isIOS || Platform.isAndroid) &&
+                  isPicture())
                 PopupMenuItem(
                   value: 'save_to_gallery',
                   child: Text(context.tr('popup_menu_save_to_gallery')),

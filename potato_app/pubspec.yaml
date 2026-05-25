@@ -47,6 +47,7 @@ dependencies:
   easy_localization: ^3.0.8
   mobile_scanner: ^7.2.0
   shared_preferences: ^2.5.5
+  cross_file: ^0.3.5+2
 
 dev_dependencies:
   flutter_test:

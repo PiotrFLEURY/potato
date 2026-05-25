@@ -13,6 +13,18 @@
             ]
         },
         {
+            "name": "potato_app (web)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env",
+                "-d",
+                "chrome",
+                "--web-browser-flag",
+                "--disable-web-security"
+            ]
+        },
+        {
             "name": "potato_app (profile mode)",
             "request": "launch",
             "type": "dart",

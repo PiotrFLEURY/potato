@@ -9,6 +9,15 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Generate icons",
+            "type": "shell",
+            "command": "dart run flutter_launcher_icons",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
