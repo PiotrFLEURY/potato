@@ -82,7 +82,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Future<FileType> _selectFileType(BuildContext context) async {
+  Future<FileType?> _selectFileType(BuildContext context) async {
     FileType? selectedType;
     selectedType = await showDialog<FileType>(
       context: context,
@@ -113,7 +113,7 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
-    return selectedType ?? FileType.any;
+    return selectedType;
   }
 
   void _showSuccessBottomsheet(BuildContext context, String code) {
@@ -172,6 +172,7 @@ class HomePage extends ConsumerWidget {
     void Function(String code) onSuccess,
   ) async {
     final fileType = await _selectFileType(context);
+    if (fileType == null) return;
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: fileType,
