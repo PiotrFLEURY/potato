@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart';
 
 class EncryptionService {
   static const _charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -21,6 +21,18 @@ class EncryptionService {
       _codeLength,
       (_) => _charset[rng.nextInt(_charset.length)],
     ).join();
+  }
+
+  static Future<String> hashRoomCode(String code) async {
+    Sha256 sha256 = Sha256();
+    final hash = await sha256.hash(utf8.encode(code));
+    final result = hash.bytes
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
+    if (kDebugMode) {
+      print('Hashing room code: $code -> $result');
+    }
+    return result;
   }
 
   static Future<SecretKey> _deriveKey(String code) {
