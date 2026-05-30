@@ -12,7 +12,8 @@ part of 'loading_state_provider.dart';
 @ProviderFor(LoadingState)
 final loadingStateProvider = LoadingStateProvider._();
 
-final class LoadingStateProvider extends $NotifierProvider<LoadingState, bool> {
+final class LoadingStateProvider
+    extends $NotifierProvider<LoadingState, LoadingStateProgress> {
   LoadingStateProvider._()
     : super(
         from: null,
@@ -32,27 +33,27 @@ final class LoadingStateProvider extends $NotifierProvider<LoadingState, bool> {
   LoadingState create() => LoadingState();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
+  Override overrideWithValue(LoadingStateProgress value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
+      providerOverride: $SyncValueProvider<LoadingStateProgress>(value),
     );
   }
 }
 
-String _$loadingStateHash() => r'7756dc38244f37078ca70af076b56dd51083bbc0';
+String _$loadingStateHash() => r'cac90594295fddba365a0706fa1c8ad4ec60fd83';
 
-abstract class _$LoadingState extends $Notifier<bool> {
-  bool build();
+abstract class _$LoadingState extends $Notifier<LoadingStateProgress> {
+  LoadingStateProgress build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<bool, bool>;
+    final ref = this.ref as $Ref<LoadingStateProgress, LoadingStateProgress>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
+              AnyNotifier<LoadingStateProgress, LoadingStateProgress>,
+              LoadingStateProgress,
               Object?,
               Object?
             >;

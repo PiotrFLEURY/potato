@@ -30,5 +30,6 @@
     "recent_short_codes": "Codes récents",
     "file_too_large": "Un ou plusieurs fichiers sélectionnés sont trop volumineux",
     "file_size_limit_explanation": "La taille maximale autorisée pour un fichier est de 10 Mo. Veuillez sélectionner des fichiers qui respectent cette limite.",
-    "scan_qr_code_to_get_files": "Scannez le code QR pour accéder aux fichiers"
+    "scan_qr_code_to_get_files": "Scannez le code QR pour accéder aux fichiers",
+    "loading_files": "Envoi des patates chaudes..."
 }

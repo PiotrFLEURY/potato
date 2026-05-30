@@ -33,7 +33,7 @@ final class ShortCodeHistoryProvider
   ShortCodeHistory create() => ShortCodeHistory();
 }
 
-String _$shortCodeHistoryHash() => r'1f58a9d39854bc918b2107b069157701cf897b12';
+String _$shortCodeHistoryHash() => r'0e8e6ef53c0f3ee3992b0077f55e05e887caa192';
 
 abstract class _$ShortCodeHistory extends $AsyncNotifier<List<String>> {
   FutureOr<List<String>> build();
