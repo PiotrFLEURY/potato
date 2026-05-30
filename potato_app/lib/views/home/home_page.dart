@@ -16,6 +16,8 @@ import 'package:potato/views/loading/loading_barrier.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+final chunkSize = ((1024 * 1024) / 2).ceil(); // 512 KB
+
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -171,6 +173,7 @@ class HomePage extends ConsumerWidget {
     WidgetRef ref,
     void Function(String code) onSuccess,
   ) async {
+    final loadingMessage = context.tr('loading_files');
     final fileType = await _selectFileType(context);
     if (fileType == null) return;
     final result = await FilePicker.platform.pickFiles(
@@ -180,20 +183,27 @@ class HomePage extends ConsumerWidget {
     if (result != null && result.files.isNotEmpty) {
       final validSize = _checkFileSize(result.files);
       if (!validSize) {
-        ref.read(loadingStateProvider.notifier).setLoading(false);
+        ref.read(loadingStateProvider.notifier).stopLoading();
         if (context.mounted) {
           _showInvalidFileSizeDialog(context);
         }
         return;
       }
-      ref.read(loadingStateProvider.notifier).setLoading(true);
+      final int estimatedTotalChunks = await Future.wait(
+        result.files.map(countChunks),
+      ).then((values) => values.reduce((a, b) => a + b));
+
+      ref
+          .read(loadingStateProvider.notifier)
+          .setLoading(loadingMessage, estimatedTotalChunks);
+
       final code = EncryptionService.generateCode();
 
       for (final file in result.files) {
         await _uploadFile(file, code, ref);
       }
 
-      ref.read(loadingStateProvider.notifier).setLoading(false);
+      ref.read(loadingStateProvider.notifier).stopLoading();
       onSuccess(code);
     }
   }
@@ -225,6 +235,12 @@ class HomePage extends ConsumerWidget {
     return true;
   }
 
+  Future<int> countChunks(PlatformFile file) async {
+    final xFile = file.xFile;
+    final fileLength = await xFile.length();
+    return (fileLength / chunkSize).ceil();
+  }
+
   Future<void> _uploadFile(
     PlatformFile file,
     String code,
@@ -236,7 +252,7 @@ class HomePage extends ConsumerWidget {
       final uuid = Uuid().v4();
       final XFile xFile = file.xFile;
       final fileBytes = await xFile.readAsBytes();
-      final chunkSize = ((1024 * 1024) / 2).ceil(); // 512 KB
+
       final totalChunks = (fileBytes.length / chunkSize).ceil();
       final List<String> chunkIds = [];
       for (int i = 0; i < totalChunks; i++) {
@@ -255,6 +271,7 @@ class HomePage extends ConsumerWidget {
             .read(chunksRepositoriesProvider)
             .uploadChunk(chunkId, encryptedBytes);
         chunkIds.add(chunkId);
+        ref.read(loadingStateProvider.notifier).progress(1);
       }
       final encryptedFilename = await EncryptionService.encryptString(
         code,
