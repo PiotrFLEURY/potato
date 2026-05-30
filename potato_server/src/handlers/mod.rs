@@ -36,8 +36,17 @@ pub async fn get_chunk(
     }
 }
 
-pub async fn create_room(State(state): State<AppState>, Path(id): Path<String>) {
-    repositories::create_room(&state.db, id).await;
+pub async fn create_room(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<(), StatusCode> {
+    match repositories::create_room(&state.db, id).await {
+        Ok(_) => Ok(()),
+        Err(err) => {
+            eprintln!("Error creating room: {}", err);
+            Err(StatusCode::BAD_REQUEST)
+        }
+    }
 }
 
 pub async fn get_room_content(
@@ -45,17 +54,29 @@ pub async fn get_room_content(
     Path(id): Path<String>,
 ) -> Result<Json<Room>, StatusCode> {
     println!("Fetching content for room with id: {}", id);
-    Ok(Json(repositories::get_room_content(&state.db, &id).await))
+    match repositories::get_room_content(&state.db, &id).await {
+        Ok(room) => Ok(Json(room)),
+        Err(err) => {
+            eprintln!("Error fetching room content: {}", err);
+            Err(StatusCode::BAD_REQUEST)
+        }
+    }
 }
 
 pub async fn add_chunk_to_room(
     State(state): State<AppState>,
     Path(room_id): Path<String>,
     Json(chunk_info): Json<ChunkInfos>,
-) {
+) -> Result<(), StatusCode> {
     println!(
         "Adding chunk with file name: {} to room with id: {}",
         chunk_info.file_name, room_id
     );
-    repositories::add_chunk_to_room(&state.db, room_id, chunk_info).await;
+    match repositories::add_chunk_to_room(&state.db, room_id, chunk_info).await {
+        Ok(_) => Ok(()),
+        Err(err) => {
+            eprintln!("Error adding chunk to room: {}", err);
+            Err(StatusCode::BAD_REQUEST)
+        }
+    }
 }
