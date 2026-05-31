@@ -27,9 +27,16 @@
     "popup_menu_preview": "Preview",
     "popup_menu_download": "Download",
     "popup_menu_save_to_gallery": "Save to Gallery",
+    "popup_menu_copy_to_clipboard": "Copy to Clipboard",
     "recent_short_codes": "Recent short codes",
     "file_too_large": "One or more selected files is too large",
     "file_size_limit_explanation": "The maximum allowed file size is 10 MB. Please select files that are within this limit.",
     "scan_qr_code_to_get_files": "Scan the QR code to access the files",
-    "loading_files": "Loading files..."
+    "loading_files": "Loading files...",
+    "text_copied_to_clipboard_title": "Text copied to clipboard",
+    "text_copied_to_clipboard_message": "The text has been copied to your clipboard successfully.",
+    "clipboard_empty": "Clipboard is empty",
+    "send_clipboard_content": "Paste text",
+    "clipboard_page_title": "Clipboard",
+    "scan_code": "Scan code"
 }

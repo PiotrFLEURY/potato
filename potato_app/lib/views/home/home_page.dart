@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
@@ -56,7 +58,10 @@ class HomePage extends ConsumerWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                 ),
                 const Spacer(),
-                Image.asset('assets/images/potato_mascot.png', width: 256),
+                Image.asset(
+                  'assets/images/potato_mascot.png',
+                  width: kIsWeb ? 128 : 256,
+                ),
                 const Spacer(),
                 PotatoButton.primary(
                   onPressed: () async {
@@ -69,11 +74,27 @@ class HomePage extends ConsumerWidget {
                   },
                   child: Text(context.tr('send_file')),
                 ),
+
+                PotatoButton(
+                  onPressed: () {
+                    _sendClipboardContent(context, ref, (code) {
+                      ref
+                          .read(shortCodeHistoryProvider.notifier)
+                          .historizeCode(code);
+                      _showSuccessBottomsheet(context, code);
+                    });
+                  },
+                  child: Text(context.tr('send_clipboard_content')),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 128.0),
+                  child: Divider(height: 24),
+                ),
                 PotatoButton.secondary(
                   onPressed: () {
                     Navigator.of(context).pushNamed('/files');
                   },
-                  child: Text(context.tr('see_files')),
+                  child: Text(context.tr('scan_code')),
                 ),
                 const SizedBox(height: 48),
               ],
@@ -82,6 +103,53 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _sendClipboardContent(
+    BuildContext context,
+    WidgetRef ref,
+    void Function(String code) onSuccess,
+  ) async {
+    final clipboardData = await Clipboard.getData('text/plain');
+    if (clipboardData == null ||
+        clipboardData.text == null ||
+        clipboardData.text!.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('clipboard_empty'))));
+      }
+      return;
+    }
+    final fileName = 'clipboard.txt';
+    final fileBytes = Uint8List.fromList(utf8.encode(clipboardData.text!));
+
+    final code = EncryptionService.generateCode();
+    final chunkId = Uuid().v4();
+
+    final encryptedFilename = await EncryptionService.encryptString(
+      code,
+      fileName,
+    );
+    final encryptedBytes = await EncryptionService.encryptBytes(
+      code,
+      fileBytes,
+    );
+
+    await ref
+        .read(chunksRepositoriesProvider)
+        .uploadChunk(chunkId, encryptedBytes);
+
+    await ref
+        .read(roomsRepositoryProvider)
+        .addChunkToRoom(
+          code,
+          ChunkInfos(filename: encryptedFilename, chunks: [chunkId]),
+        );
+
+    if (context.mounted) {
+      onSuccess(code);
+    }
   }
 
   Future<FileType?> _selectFileType(BuildContext context) async {
@@ -176,6 +244,7 @@ class HomePage extends ConsumerWidget {
     final loadingMessage = context.tr('loading_files');
     final fileType = await _selectFileType(context);
     if (fileType == null) return;
+
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: fileType,

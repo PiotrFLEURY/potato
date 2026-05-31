@@ -27,9 +27,16 @@
     "popup_menu_preview": "Aperçu",
     "popup_menu_download": "Télécharger",
     "popup_menu_save_to_gallery": "Enregistrer dans la galerie",
+    "popup_menu_copy_to_clipboard": "Copier dans le presse-papiers",
     "recent_short_codes": "Codes récents",
     "file_too_large": "Un ou plusieurs fichiers sélectionnés sont trop volumineux",
     "file_size_limit_explanation": "La taille maximale autorisée pour un fichier est de 10 Mo. Veuillez sélectionner des fichiers qui respectent cette limite.",
     "scan_qr_code_to_get_files": "Scannez le code QR pour accéder aux fichiers",
-    "loading_files": "Envoi des patates chaudes..."
+    "loading_files": "Envoi des patates chaudes...",
+    "text_copied_to_clipboard_title": "Texte copié dans le presse-papiers",
+    "text_copied_to_clipboard_message": "Le texte a été copié dans votre presse-papiers avec succès.",
+    "clipboard_empty": "Le presse-papiers est vide",
+    "send_clipboard_content": "Coller le texte",
+    "clipboard_page_title": "Presse-papiers",
+    "scan_code": "Scanner un code"
 }
