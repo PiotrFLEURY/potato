@@ -18,6 +18,15 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Generate translations",
+            "type": "shell",
+            "command": "dart run easy_localization:generate --source-dir=assets/translations",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
