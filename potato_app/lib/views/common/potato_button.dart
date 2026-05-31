@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:potato/views/theme.dart';
 
@@ -57,9 +58,12 @@ class PotatoButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(32),
           child: SizedBox(
             width: double.infinity,
-            height: 56,
+            height: kIsWeb ? 48 : 56,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: kIsWeb ? 8 : 12,
+              ),
               child: DefaultTextStyle(
                 style: TextStyle(
                   color: backgroundColor == Colors.white
@@ -67,7 +71,7 @@ class PotatoButton extends StatelessWidget {
                       : enabled
                       ? Colors.white
                       : Colors.grey.shade200,
-                  fontSize: 16,
+                  fontSize: kIsWeb ? 12 : 16,
                   fontWeight: FontWeight.w700,
                 ),
                 child: Center(child: child),
