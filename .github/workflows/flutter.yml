@@ -36,6 +36,17 @@ jobs:
       - name: Format code
         working-directory: ./potato_app
         run: dart format --set-exit-if-changed .
+
+      - name: Check translations are up to date
+        working-directory: ./potato_app
+        run: |
+          dart run easy_localization:generate --source-dir=assets/translations
+          dart format lib/generated/codegen_loader.g.dart
+          if ! git diff --exit-code lib/generated/codegen_loader.g.dart; then
+            echo "❌ Les traductions générées ne sont pas à jour."
+            echo "Lance 'dart run easy_localization:generate' et commit les fichiers générés."
+            exit 1
+          fi
       
       - name: Run tests
         working-directory: ./potato_app
