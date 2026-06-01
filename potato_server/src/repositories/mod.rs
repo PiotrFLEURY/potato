@@ -4,6 +4,7 @@ use std::time::Duration;
 use sea_orm::sea_query::{Expr, OnConflict};
 use sea_orm::sqlx::types::chrono::Utc;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, Set};
+use uuid::Uuid;
 
 use crate::entities::{chunks, rooms};
 use crate::hashing::{hash_room_code, is_classic_room_code, is_hashed_room_id};
@@ -17,7 +18,30 @@ fn validate_room_id(room_id: &str) -> Result<(), String> {
     }
 }
 
-pub async fn persist_chunk(db: &DatabaseConnection, id: String, data: Vec<u8>) {
+fn validate_chunk_id(chunk_id: &str) -> Result<(), String> {
+    if chunk_id.len() <= 40 && Uuid::parse_str(&chunk_id[0..36]).is_ok() {
+        Ok(())
+    } else {
+        Err("Invalid chunk ID".to_string())
+    }
+}
+
+fn validate_chunk_size(chunk_size: usize) -> Result<(), String> {
+    if chunk_size > 0 && chunk_size <= 1024 * 1024 {
+        // 1 MB
+        Ok(())
+    } else {
+        Err("Chunk size must be between 1 byte and 1 MB".to_string())
+    }
+}
+
+pub async fn persist_chunk(
+    db: &DatabaseConnection,
+    id: String,
+    data: Vec<u8>,
+) -> Result<(), String> {
+    validate_chunk_id(&id)?;
+    validate_chunk_size(data.len())?;
     let model = chunks::ActiveModel {
         id: Set(id),
         data: Set(data),
@@ -33,6 +57,7 @@ pub async fn persist_chunk(db: &DatabaseConnection, id: String, data: Vec<u8>) {
         )
         .exec(db)
         .await;
+    Ok(())
 }
 
 pub async fn fetch_chunk(db: &DatabaseConnection, id: &str) -> Option<Vec<u8>> {

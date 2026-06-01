@@ -11,6 +11,7 @@ use testcontainers_modules::{
     testcontainers::{ContainerAsync, runners::AsyncRunner},
 };
 use tower::ServiceExt;
+use uuid::Uuid;
 
 async fn setup() -> (axum::Router, ContainerAsync<Postgres>) {
     let container = Postgres::default().start().await.unwrap();
@@ -31,12 +32,14 @@ async fn body_json(body: axum::body::Body) -> Value {
 async fn test_save_and_get_chunk() {
     let (app, _container) = setup().await;
 
+    let chunk_id = Uuid::new_v4().to_string();
+
     let res = app
         .clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/chunk-1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"hello world".to_vec()))
                 .unwrap(),
         )
@@ -48,7 +51,7 @@ async fn test_save_and_get_chunk() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri("/chunks/chunk-1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -80,13 +83,15 @@ async fn test_get_chunk_not_found() {
 async fn test_save_chunk_is_idempotent() {
     let (app, _container) = setup().await;
 
+    let chunk_id = Uuid::new_v4().to_string();
+
     for data in [b"v1".as_ref(), b"v2".as_ref()] {
         let res = app
             .clone()
             .oneshot(
                 Request::builder()
                     .method("POST")
-                    .uri("/chunks/idem")
+                    .uri(&format!("/chunks/{}", chunk_id))
                     .body(Body::from(data.to_vec()))
                     .unwrap(),
             )
@@ -99,7 +104,7 @@ async fn test_save_chunk_is_idempotent() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri("/chunks/idem")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -149,11 +154,12 @@ async fn test_create_room_and_get_content() {
     assert_eq!(res.status(), StatusCode::OK);
 
     // save chunk
+    let chunk_id = Uuid::new_v4().to_string();
     app.clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/c1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"data".to_vec()))
                 .unwrap(),
         )
@@ -162,7 +168,7 @@ async fn test_create_room_and_get_content() {
 
     // add chunk to room
     let payload =
-        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": ["c1"] })).unwrap();
+        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": [chunk_id] })).unwrap();
     let res = app
         .clone()
         .oneshot(
@@ -191,7 +197,7 @@ async fn test_create_room_and_get_content() {
     assert_eq!(res.status(), StatusCode::OK);
     let body = body_json(res.into_body()).await;
     assert_eq!(body["chunks_infos"][0]["file_name"], "test.txt");
-    assert_eq!(body["chunks_infos"][0]["chunks"][0], "c1");
+    assert_eq!(body["chunks_infos"][0]["chunks"][0], chunk_id);
 }
 
 #[tokio::test]
@@ -216,11 +222,12 @@ async fn test_create_room_and_get_content_from_hash() {
     assert_eq!(res.status(), StatusCode::OK);
 
     // save chunk
+    let chunk_id = Uuid::new_v4().to_string();
     app.clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/c1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"data".to_vec()))
                 .unwrap(),
         )
@@ -229,7 +236,7 @@ async fn test_create_room_and_get_content_from_hash() {
 
     // add chunk to room
     let payload =
-        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": ["c1"] })).unwrap();
+        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": [&chunk_id] })).unwrap();
     let res = app
         .clone()
         .oneshot(
@@ -258,7 +265,7 @@ async fn test_create_room_and_get_content_from_hash() {
     assert_eq!(res.status(), StatusCode::OK);
     let body = body_json(res.into_body()).await;
     assert_eq!(body["chunks_infos"][0]["file_name"], "test.txt");
-    assert_eq!(body["chunks_infos"][0]["chunks"][0], "c1");
+    assert_eq!(body["chunks_infos"][0]["chunks"][0], chunk_id);
 }
 
 #[tokio::test]
@@ -283,11 +290,12 @@ async fn test_create_room_hash_and_get_content_from_hash() {
     assert_eq!(res.status(), StatusCode::OK);
 
     // save chunk
+    let chunk_id = Uuid::new_v4().to_string();
     app.clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/c1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"data".to_vec()))
                 .unwrap(),
         )
@@ -296,7 +304,7 @@ async fn test_create_room_hash_and_get_content_from_hash() {
 
     // add chunk to room
     let payload =
-        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": ["c1"] })).unwrap();
+        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": [&chunk_id] })).unwrap();
     let res = app
         .clone()
         .oneshot(
@@ -325,7 +333,7 @@ async fn test_create_room_hash_and_get_content_from_hash() {
     assert_eq!(res.status(), StatusCode::OK);
     let body = body_json(res.into_body()).await;
     assert_eq!(body["chunks_infos"][0]["file_name"], "test.txt");
-    assert_eq!(body["chunks_infos"][0]["chunks"][0], "c1");
+    assert_eq!(body["chunks_infos"][0]["chunks"][0], chunk_id);
 }
 
 #[tokio::test]
@@ -350,11 +358,12 @@ async fn test_create_room_hash_and_get_content_from_room_id() {
     assert_eq!(res.status(), StatusCode::OK);
 
     // save chunk
+    let chunk_id = Uuid::new_v4().to_string();
     app.clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/c1")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"data".to_vec()))
                 .unwrap(),
         )
@@ -363,7 +372,7 @@ async fn test_create_room_hash_and_get_content_from_room_id() {
 
     // add chunk to room
     let payload =
-        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": ["c1"] })).unwrap();
+        serde_json::to_string(&json!({ "file_name": "test.txt", "chunks": [&chunk_id] })).unwrap();
     let res = app
         .clone()
         .oneshot(
@@ -392,7 +401,7 @@ async fn test_create_room_hash_and_get_content_from_room_id() {
     assert_eq!(res.status(), StatusCode::OK);
     let body = body_json(res.into_body()).await;
     assert_eq!(body["chunks_infos"][0]["file_name"], "test.txt");
-    assert_eq!(body["chunks_infos"][0]["chunks"][0], "c1");
+    assert_eq!(body["chunks_infos"][0]["chunks"][0], chunk_id);
 }
 
 #[tokio::test]
@@ -419,12 +428,13 @@ async fn test_add_chunk_to_room_creates_room_implicitly() {
     let (app, _container) = setup().await;
 
     let room_id = "1234ABCD";
+    let chunk_id = Uuid::new_v4().to_string();
 
     app.clone()
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri("/chunks/c2")
+                .uri(&format!("/chunks/{}", chunk_id))
                 .body(Body::from(b"bytes".to_vec()))
                 .unwrap(),
         )
@@ -432,7 +442,7 @@ async fn test_add_chunk_to_room_creates_room_implicitly() {
         .unwrap();
 
     let payload =
-        serde_json::to_string(&json!({ "file_name": "file.bin", "chunks": ["c2"] })).unwrap();
+        serde_json::to_string(&json!({ "file_name": "file.bin", "chunks": [&chunk_id] })).unwrap();
     let res = app
         .clone()
         .oneshot(
@@ -459,7 +469,7 @@ async fn test_add_chunk_to_room_creates_room_implicitly() {
         .unwrap();
     let body = body_json(res.into_body()).await;
     assert_eq!(body["chunks_infos"][0]["file_name"], "file.bin");
-    assert_eq!(body["chunks_infos"][0]["chunks"][0], "c2");
+    assert_eq!(body["chunks_infos"][0]["chunks"][0], chunk_id);
 }
 
 #[tokio::test]
@@ -468,7 +478,11 @@ async fn test_room_preserves_chunk_order() {
 
     let room_id = "A1B2C3D4";
 
-    for id in ["ord-a", "ord-b", "ord-c"] {
+    let chunk_id_1 = Uuid::new_v4().to_string();
+    let chunk_id_2 = Uuid::new_v4().to_string();
+    let chunk_id_3 = Uuid::new_v4().to_string();
+
+    for id in [&chunk_id_1, &chunk_id_2, &chunk_id_3] {
         app.clone()
             .oneshot(
                 Request::builder()
@@ -482,7 +496,7 @@ async fn test_room_preserves_chunk_order() {
     }
 
     let payload = serde_json::to_string(
-        &json!({ "file_name": "multi.bin", "chunks": ["ord-a", "ord-b", "ord-c"] }),
+        &json!({ "file_name": "multi.bin", "chunks": [&chunk_id_1, &chunk_id_2, &chunk_id_3] }),
     )
     .unwrap();
     app.clone()
@@ -509,7 +523,7 @@ async fn test_room_preserves_chunk_order() {
         .unwrap();
     let body = body_json(res.into_body()).await;
     let chunks = &body["chunks_infos"][0]["chunks"];
-    assert_eq!(chunks[0], "ord-a");
-    assert_eq!(chunks[1], "ord-b");
-    assert_eq!(chunks[2], "ord-c");
+    assert_eq!(chunks[0], chunk_id_1);
+    assert_eq!(chunks[1], chunk_id_2);
+    assert_eq!(chunks[2], chunk_id_3);
 }

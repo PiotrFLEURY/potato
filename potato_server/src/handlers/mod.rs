@@ -16,8 +16,12 @@ pub async fn save_chunk(
     bytes: Bytes,
 ) -> Result<(), StatusCode> {
     println!("Received chunk with id: {} and size: {}", id, bytes.len());
-    repositories::persist_chunk(&state.db, id, bytes.to_vec()).await;
-    Ok(())
+    repositories::persist_chunk(&state.db, id, bytes.to_vec())
+        .await
+        .map_err(|err| {
+            eprintln!("Error saving chunk: {}", err);
+            StatusCode::BAD_REQUEST
+        })
 }
 
 pub async fn get_chunk(
