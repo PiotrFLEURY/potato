@@ -1,46 +1,28 @@
 use std::time::Duration;
 
 use logs::Logs;
-use potato_server::{build_router, setup_schema, state::AppState};
-use sea_orm::{ConnectionTrait, Database, DatabaseConnection, DbBackend, Statement};
+use potato_server::{build_router, purge_expired_rooms, setup_schema, state::AppState};
+use sea_orm::{Database, DatabaseConnection};
 use tokio::time::interval;
 
 fn setup_purge_task(db: DatabaseConnection) {
     tokio::spawn(async move {
+        let mut ticker = interval(Duration::from_mins(30));
+
         loop {
-            run_purge_task(db.clone()).await;
+            ticker.tick().await;
+
+            match purge_expired_rooms(&db).await {
+                Ok(count) if count > 0 => {
+                    logs::info!("Purged {} expired rooms", count);
+                }
+                Err(e) => {
+                    logs::error!("Cleanup job failed: {}", e);
+                }
+                _ => {}
+            }
         }
     });
-}
-
-async fn run_purge_task(db: DatabaseConnection) {
-    let mut ticker = interval(Duration::from_mins(30));
-
-    loop {
-        ticker.tick().await;
-
-        match purge_expired_rooms(&db).await {
-            Ok(count) if count > 0 => {
-                logs::info!("Purged {} expired rooms", count);
-            }
-            Err(e) => {
-                logs::error!("Cleanup job failed: {}", e);
-            }
-            _ => {}
-        }
-    }
-}
-
-async fn purge_expired_rooms(db: &DatabaseConnection) -> Result<u64, sea_orm::DbErr> {
-    let output = db
-        .execute(Statement::from_string(
-            DbBackend::Postgres,
-            "DELETE FROM rooms WHERE expires_at < NOW()".to_owned(),
-        ))
-        .await
-        .expect("Failed delete expired rooms");
-
-    Ok(output.rows_affected())
 }
 
 #[tokio::main]

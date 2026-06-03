@@ -11,6 +11,17 @@ use axum::{
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, Statement};
 use state::AppState;
 
+pub async fn purge_expired_rooms(db: &DatabaseConnection) -> Result<u64, sea_orm::DbErr> {
+    let output = db
+        .execute(Statement::from_string(
+            DbBackend::Postgres,
+            "DELETE FROM rooms WHERE expires_at < NOW()".to_owned(),
+        ))
+        .await?;
+
+    Ok(output.rows_affected())
+}
+
 pub async fn setup_schema(db: &DatabaseConnection) {
     db.execute(Statement::from_string(
         DbBackend::Postgres,
