@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::time::Duration;
 
-use sea_orm::sea_query::{Expr, OnConflict};
+use sea_orm::sea_query::OnConflict;
 use sea_orm::sqlx::types::chrono::Utc;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, Set};
 use uuid::Uuid;
@@ -93,22 +93,40 @@ pub async fn add_chunk_to_room(
     room_id: String,
     chunk_info: ChunkInfos,
 ) -> Result<(), String> {
+    if chunk_info.chunks.is_empty() {
+        return Ok(());
+    }
+
     create_room(db, room_id.clone()).await?;
 
     let hashed_room_id = hash_room_code(&room_id);
 
-    for (order, chunk_id) in chunk_info.chunks.iter().enumerate() {
-        let _ = chunks::Entity::update_many()
-            .col_expr(chunks::Column::RoomId, Expr::value(hashed_room_id.clone()))
-            .col_expr(
-                chunks::Column::FileName,
-                Expr::value(chunk_info.file_name.clone()),
-            )
-            .col_expr(chunks::Column::ChunkOrder, Expr::value(order as i32))
-            .filter(chunks::Column::Id.eq(chunk_id.clone()))
-            .exec(db)
-            .await;
-    }
+    let models: Vec<chunks::ActiveModel> = chunk_info
+        .chunks
+        .iter()
+        .enumerate()
+        .map(|(order, chunk_id)| chunks::ActiveModel {
+            id: Set(chunk_id.clone()),
+            room_id: Set(Some(hashed_room_id.clone())),
+            file_name: Set(Some(chunk_info.file_name.clone())),
+            chunk_order: Set(Some(order as i32)),
+            data: Set(vec![]),
+        })
+        .collect();
+
+    let _ = chunks::Entity::insert_many(models)
+        .on_conflict(
+            OnConflict::column(chunks::Column::Id)
+                .update_columns([
+                    chunks::Column::RoomId,
+                    chunks::Column::FileName,
+                    chunks::Column::ChunkOrder,
+                ])
+                .to_owned(),
+        )
+        .exec(db)
+        .await;
+
     Ok(())
 }
 

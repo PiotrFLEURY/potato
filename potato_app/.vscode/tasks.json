@@ -22,7 +22,7 @@
         {
             "label": "Generate translations",
             "type": "shell",
-            "command": "dart run easy_localization:generate --source-dir=assets/translations",
+            "command": "dart run easy_localization:generate --source-dir=assets/translations && dart format .",
             "group": {
                 "kind": "build",
                 "isDefault": true

@@ -41,7 +41,7 @@ final class LoadingStateProvider
   }
 }
 
-String _$loadingStateHash() => r'cac90594295fddba365a0706fa1c8ad4ec60fd83';
+String _$loadingStateHash() => r'e7eca60aa580e0d511245d44ef7037322bfd6d93';
 
 abstract class _$LoadingState extends $Notifier<LoadingStateProgress> {
   LoadingStateProgress build();

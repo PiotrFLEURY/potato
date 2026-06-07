@@ -16,7 +16,7 @@
     "code_hint": "ex. ABCD1234",
     "load_files": "Charger les fichiers",
     "files_for_code": "Fichiers – {}",
-    "no_files_found_for_code": "Aucun fichier trouvé pour ce code.",
+    "no_files_found_for_code": "Aucun fichier trouvé pour ce code. Il est peut-être expiré ou n'existe pas.",
     "decryption_failed": "(échec du déchiffrement)",
     "close": "Fermer",
     "failed_to_load_files_for_code": "Oups ! Quelque chose s'est mal passé lors du chargement des fichiers pour le code '{}'.",
@@ -30,7 +30,7 @@
     "popup_menu_copy_to_clipboard": "Copier dans le presse-papiers",
     "recent_short_codes": "Codes récents",
     "file_too_large": "Un ou plusieurs fichiers sélectionnés sont trop volumineux",
-    "file_size_limit_explanation": "La taille maximale autorisée pour un fichier est de 10 Mo. Veuillez sélectionner des fichiers qui respectent cette limite.",
+    "file_size_limit_explanation": "La taille maximale autorisée pour un fichier est de {}. Veuillez sélectionner des fichiers qui respectent cette limite.",
     "scan_qr_code_to_get_files": "Scannez le code QR pour accéder aux fichiers",
     "loading_files": "Envoi des patates chaudes...",
     "text_copied_to_clipboard_title": "Texte copié dans le presse-papiers",
@@ -38,5 +38,7 @@
     "clipboard_empty": "Le presse-papiers est vide",
     "send_clipboard_content": "Coller le texte",
     "clipboard_page_title": "Presse-papiers",
-    "scan_code": "Scanner un code"
+    "scan_code": "Scanner un code",
+    "file_load_failed": "Échec du chargement du fichier",
+    "downloading_file": "Téléchargement du fichier..."
 }

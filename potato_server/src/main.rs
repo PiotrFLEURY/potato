@@ -27,7 +27,7 @@ fn setup_purge_task(db: DatabaseConnection) {
 
 #[tokio::main]
 async fn main() {
-    Logs::new().init();
+    Logs::new().level(logs::LevelFilter::Info).init();
 
     let db_url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://postgres:postgres@localhost/postgres".to_string());

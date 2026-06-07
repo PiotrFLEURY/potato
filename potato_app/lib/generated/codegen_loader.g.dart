@@ -34,7 +34,8 @@ class CodegenLoader extends AssetLoader {
     "code_hint": "e.g. ABCD1234",
     "load_files": "Load files",
     "files_for_code": "Files – {}",
-    "no_files_found_for_code": "No files found for this code.",
+    "no_files_found_for_code":
+        "No files found for this code. It may have expired or does not exist.",
     "decryption_failed": "(decryption failed)",
     "close": "Close",
     "failed_to_load_files_for_code":
@@ -52,7 +53,7 @@ class CodegenLoader extends AssetLoader {
     "recent_short_codes": "Recent short codes",
     "file_too_large": "One or more selected files is too large",
     "file_size_limit_explanation":
-        "The maximum allowed file size is 10 MB. Please select files that are within this limit.",
+        "The maximum allowed file size is {}. Please select files that are within this limit.",
     "scan_qr_code_to_get_files": "Scan the QR code to access the files",
     "loading_files": "Loading files...",
     "text_copied_to_clipboard_title": "Text copied to clipboard",
@@ -62,6 +63,8 @@ class CodegenLoader extends AssetLoader {
     "send_clipboard_content": "Paste text",
     "clipboard_page_title": "Clipboard",
     "scan_code": "Scan code",
+    "file_load_failed": "Failed to load file",
+    "downloading_file": "Downloading file...",
   };
   static const Map<String, dynamic> _fr = {
     "app_title": "Potato",
@@ -83,7 +86,8 @@ class CodegenLoader extends AssetLoader {
     "code_hint": "ex. ABCD1234",
     "load_files": "Charger les fichiers",
     "files_for_code": "Fichiers – {}",
-    "no_files_found_for_code": "Aucun fichier trouvé pour ce code.",
+    "no_files_found_for_code":
+        "Aucun fichier trouvé pour ce code. Il est peut-être expiré ou n'existe pas.",
     "decryption_failed": "(échec du déchiffrement)",
     "close": "Fermer",
     "failed_to_load_files_for_code":
@@ -102,7 +106,7 @@ class CodegenLoader extends AssetLoader {
     "file_too_large":
         "Un ou plusieurs fichiers sélectionnés sont trop volumineux",
     "file_size_limit_explanation":
-        "La taille maximale autorisée pour un fichier est de 10 Mo. Veuillez sélectionner des fichiers qui respectent cette limite.",
+        "La taille maximale autorisée pour un fichier est de {}. Veuillez sélectionner des fichiers qui respectent cette limite.",
     "scan_qr_code_to_get_files": "Scannez le code QR pour accéder aux fichiers",
     "loading_files": "Envoi des patates chaudes...",
     "text_copied_to_clipboard_title": "Texte copié dans le presse-papiers",
@@ -112,6 +116,8 @@ class CodegenLoader extends AssetLoader {
     "send_clipboard_content": "Coller le texte",
     "clipboard_page_title": "Presse-papiers",
     "scan_code": "Scanner un code",
+    "file_load_failed": "Échec du chargement du fichier",
+    "downloading_file": "Téléchargement du fichier...",
   };
   static const Map<String, Map<String, dynamic>> mapLocales = {
     "en": _en,

@@ -6,6 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:potato/viewmodels/room_provider.dart';
 import 'package:potato/viewmodels/short_codes_history_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
+import 'package:potato/views/error/error_view.dart';
 import 'package:potato/views/files/file_list_item.dart';
 import 'package:potato/views/files/short_codes_history.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -114,9 +115,10 @@ class _FilesPageState extends ConsumerState<FilesPage> {
           ],
         ),
         body: room.chunkInfos.isEmpty
-            ? Center(
-                child: Text(
-                  context.tr('no_files_found_for_code', args: [_activeCode!]),
+            ? ErrorView(
+                errorMessage: context.tr(
+                  'no_files_found_for_code',
+                  args: [_activeCode!],
                 ),
               )
             : ListView.builder(

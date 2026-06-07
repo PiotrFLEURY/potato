@@ -17,8 +17,7 @@ import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/loading/loading_barrier.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
-final chunkSize = ((1024 * 1024) / 2).ceil(); // 512 KB
+import 'package:potato/viewmodels/utils/file_size_utils.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -283,7 +282,12 @@ class HomePage extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.tr('file_too_large')),
-        content: Text(context.tr('file_size_limit_explanation')),
+        content: Text(
+          context.tr(
+            'file_size_limit_explanation',
+            args: [humanReadableFileSize(maxFileSize)],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -295,9 +299,8 @@ class HomePage extends ConsumerWidget {
   }
 
   bool _checkFileSize(List<PlatformFile> files) {
-    const maxSize = 10 * 1024 * 1024; // 10 Mo
     for (final file in files) {
-      if (file.size > maxSize) {
+      if (file.size > maxFileSize) {
         return false;
       }
     }

@@ -16,7 +16,7 @@
     "code_hint": "e.g. ABCD1234",
     "load_files": "Load files",
     "files_for_code": "Files – {}",
-    "no_files_found_for_code": "No files found for this code.",
+    "no_files_found_for_code": "No files found for this code. It may have expired or does not exist.",
     "decryption_failed": "(decryption failed)",
     "close": "Close",
     "failed_to_load_files_for_code": "Oops! Something went wrong while loading files for code '{}'.",
@@ -30,7 +30,7 @@
     "popup_menu_copy_to_clipboard": "Copy to Clipboard",
     "recent_short_codes": "Recent short codes",
     "file_too_large": "One or more selected files is too large",
-    "file_size_limit_explanation": "The maximum allowed file size is 10 MB. Please select files that are within this limit.",
+    "file_size_limit_explanation": "The maximum allowed file size is {}. Please select files that are within this limit.",
     "scan_qr_code_to_get_files": "Scan the QR code to access the files",
     "loading_files": "Loading files...",
     "text_copied_to_clipboard_title": "Text copied to clipboard",
@@ -38,5 +38,7 @@
     "clipboard_empty": "Clipboard is empty",
     "send_clipboard_content": "Paste text",
     "clipboard_page_title": "Clipboard",
-    "scan_code": "Scan code"
+    "scan_code": "Scan code",
+    "file_load_failed": "Failed to load file",
+    "downloading_file": "Downloading file..."
 }
