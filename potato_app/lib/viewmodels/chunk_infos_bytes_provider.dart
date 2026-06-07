@@ -26,5 +26,5 @@ Future<Uint8List> chunkInfosBytes(
       debugPrintStack(label: 'Download error: $e', stackTrace: stack);
     }
   }
-  return Uint8List(0);
+  return Future.error('Unable to download bytes');
 }
