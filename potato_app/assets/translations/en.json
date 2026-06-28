@@ -1,7 +1,7 @@
 {
     "app_title": "Potato",
     "app_description": "Push Over The Air To",
-    "send_file": "Send file",
+    "send_file": "Send files",
     "see_files": "See files",
     "select_file_type": "Select file type",
     "file_type_any": "Any",
@@ -40,5 +40,20 @@
     "clipboard_page_title": "Clipboard",
     "scan_code": "Scan code",
     "file_load_failed": "Failed to load file",
-    "downloading_file": "Downloading file..."
+    "downloading_file": "Downloading file...",
+    "total": "Total",
+    "files": "Files",
+    "download_all": "Download all",
+    "files_page_content_section": "Content",
+    "secured_transfer": "Secured transfer",
+    "sending_files_without_leaving_a_trace": "Sending files without leaving a trace",
+    "e2e_encrypted_transfer": "End-to-end encrypted transfer, no account is required",
+    "copy_here_paste_anywhere": "Copy here, paste anywhere",
+    "scan_code_to_download": "Scan code to download",
+    "create_a_code_to_download": "Create a code to download",
+    "zero_knowledge": "Zero knowledge",
+    "ephemeral": "Ephemeral",
+    "open_source": "Open source",
+    "type_code_manually": "Type code manually",
+    "files_page_or": "or"
 }

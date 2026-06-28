@@ -14,7 +14,9 @@ import 'package:potato/viewmodels/chunk_infos_bytes_provider.dart';
 import 'package:potato/viewmodels/utils/file_size_utils.dart';
 import 'package:potato/views/common/potato_button.dart';
 import 'package:potato/views/files/clipboard_text.dart';
+import 'package:potato/views/files/file_indicator.dart';
 import 'package:potato/views/success/success_dialog.dart';
+import 'package:potato/views/theme.dart';
 
 class FileListItem extends ConsumerStatefulWidget {
   const FileListItem({super.key, required this.code, required this.chunkInfos});
@@ -60,12 +62,20 @@ class _FileListItemState extends ConsumerState<FileListItem> {
     if (_fileBytes != null) {
       return Text(
         humanReadableFileSize(_fileBytes!.length),
-        style: const TextStyle(fontSize: 12, color: Colors.grey),
+        style: const TextStyle(
+          fontSize: 16,
+          color: PotatoColors.gray,
+          fontWeight: FontWeight.w600,
+        ),
       );
     }
     return Text(
       context.tr('downloading_file'),
-      style: const TextStyle(fontSize: 12, color: Colors.grey),
+      style: const TextStyle(
+        fontSize: 16,
+        color: PotatoColors.gray,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 
@@ -81,23 +91,34 @@ class _FileListItemState extends ConsumerState<FileListItem> {
         });
       }
     });
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: PotatoColors.gray),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: ListTile(
+        visualDensity: VisualDensity.compact,
         contentPadding: const EdgeInsets.all(8),
         onTap: isPicture() ? () => _previewFile(context) : null,
-        leading: _fileBytes != null && isPicture()
-            ? Image.memory(_fileBytes!, width: 64, height: 64)
-            : Image.asset(
-                _heavyFile()
-                    ? 'assets/images/potato_muscle.png'
-                    : 'assets/images/potato_eggman.png',
-                width: 64,
-                height: 64,
-              ),
+        leading: SizedBox(
+          width: 48,
+          height: 48,
+          child: FileIndicator(
+            color: PotatoColors.lightBlue,
+            fileExtension: _decryptedFilename?.split('.').last ?? '???',
+          ),
+        ),
         title: isClipboard()
             ? ClipboardText(code: widget.code, chunkInfos: widget.chunkInfos)
-            : Text(_decryptedFilename ?? '…'),
+            : Text(
+                _decryptedFilename ?? '…',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
         subtitle: _fileSize(),
         trailing: _fileBytes == null
             ? null

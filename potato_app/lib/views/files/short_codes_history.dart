@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:potato/viewmodels/short_codes_history_provider.dart';
+import 'package:potato/views/common/potato_button.dart';
 
 class ShortCodesHistory extends ConsumerStatefulWidget {
   const ShortCodesHistory({super.key, required this.onTap});
@@ -45,7 +46,9 @@ class _ShortCodesHistoryState extends ConsumerState<ShortCodesHistory> {
       children: [
         Text(
           context.tr('recent_short_codes'),
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         Container(
           decoration: BoxDecoration(
@@ -57,10 +60,9 @@ class _ShortCodesHistoryState extends ConsumerState<ShortCodesHistory> {
             itemCount: shortCodes!.length,
             itemBuilder: (context, index) {
               final code = shortCodes![index];
-              return ListTile(
-                title: Text(code),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12),
-                onTap: () => widget.onTap(code),
+              return PotatoButton.secondary(
+                onPressed: () => widget.onTap(code),
+                child: Text(code),
               );
             },
           ),
