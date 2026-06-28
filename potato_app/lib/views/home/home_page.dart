@@ -14,7 +14,9 @@ import 'package:potato/viewmodels/loading_state_provider.dart';
 import 'package:potato/viewmodels/rooms_repository_provider.dart';
 import 'package:potato/viewmodels/short_codes_history_provider.dart';
 import 'package:potato/views/common/potato_button.dart';
+import 'package:potato/views/common/potato_chip.dart';
 import 'package:potato/views/loading/loading_barrier.dart';
+import 'package:potato/views/theme.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:potato/viewmodels/utils/file_size_utils.dart';
@@ -46,20 +48,64 @@ class HomePage extends ConsumerWidget {
             child: Column(
               spacing: 8,
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('app_title'),
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          context.tr('app_description'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: PotatoColors.gray,
+                          ),
+                        ),
+                        Text(
+                          context.tr('secured_transfer').toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: PotatoColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    Image.asset('assets/images/potato_mascot.png', width: 128),
+                  ],
+                ),
+                SizedBox(height: 32),
                 Text(
-                  context.tr('app_title'),
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+                  context.tr('sending_files_without_leaving_a_trace'),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
                 ),
                 Text(
-                  context.tr('app_description'),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                  context.tr('e2e_encrypted_transfer'),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: PotatoColors.gray,
+                  ),
                 ),
-                const Spacer(),
-                Image.asset(
-                  'assets/images/potato_mascot.png',
-                  width: kIsWeb ? 128 : 256,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    PotatoChip(text: context.tr('zero_knowledge')),
+                    PotatoChip(text: context.tr('ephemeral')),
+                    PotatoChip(text: context.tr('open_source')),
+                  ],
                 ),
                 const Spacer(),
                 PotatoButton.primary(
@@ -71,29 +117,108 @@ class HomePage extends ConsumerWidget {
                       _showSuccessBottomsheet(context, code);
                     });
                   },
-                  child: Text(context.tr('send_file')),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(50),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.file_upload_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Column(
+                    spacing: 4,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(context.tr('send_file')),
+                      Text(
+                        context.tr('create_a_code_to_download'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: PotatoColors.gray,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-
-                PotatoButton(
-                  onPressed: () {
-                    _sendClipboardContent(context, ref, (code) {
-                      ref
-                          .read(shortCodeHistoryProvider.notifier)
-                          .historizeCode(code);
-                      _showSuccessBottomsheet(context, code);
-                    });
-                  },
-                  child: Text(context.tr('send_clipboard_content')),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 128.0),
-                  child: Divider(height: 24),
-                ),
-                PotatoButton.secondary(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/files');
-                  },
-                  child: Text(context.tr('scan_code')),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Flexible(
+                      child: PotatoButton.secondary(
+                        onPressed: () {
+                          _sendClipboardContent(context, ref, (code) {
+                            ref
+                                .read(shortCodeHistoryProvider.notifier)
+                                .historizeCode(code);
+                            _showSuccessBottomsheet(context, code);
+                          });
+                        },
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: PotatoColors.primary.withAlpha(10),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.copy_outlined,
+                            color: PotatoColors.primary,
+                          ),
+                        ),
+                        child: Column(
+                          spacing: 4,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.tr('send_clipboard_content'),
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              context.tr('copy_here_paste_anywhere'),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: PotatoColors.gray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: PotatoButton.secondary(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/files');
+                        },
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: PotatoColors.primary.withAlpha(10),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.qr_code,
+                            color: PotatoColors.primary,
+                          ),
+                        ),
+                        child: Column(
+                          spacing: 4,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(context.tr('scan_code')),
+                            Text(
+                              context.tr('scan_code_to_download'),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: PotatoColors.gray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 48),
               ],
@@ -158,25 +283,26 @@ class HomePage extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text(context.tr('select_file_type')),
         content: Column(
+          spacing: 8,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              title: Text(context.tr('file_type_any')),
-              onTap: () {
+            PotatoButton.secondary(
+              onPressed: () {
                 Navigator.of(context).pop(FileType.any);
               },
+              child: Text(context.tr('file_type_any')),
             ),
-            ListTile(
-              title: Text(context.tr('file_type_image')),
-              onTap: () {
+            PotatoButton.secondary(
+              onPressed: () {
                 Navigator.of(context).pop(FileType.image);
               },
+              child: Text(context.tr('file_type_image')),
             ),
-            ListTile(
-              title: Text(context.tr('file_type_video')),
-              onTap: () {
+            PotatoButton.secondary(
+              onPressed: () {
                 Navigator.of(context).pop(FileType.video);
               },
+              child: Text(context.tr('file_type_video')),
             ),
           ],
         ),

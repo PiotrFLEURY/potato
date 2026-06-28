@@ -17,7 +17,7 @@ class CodegenLoader extends AssetLoader {
   static const Map<String, dynamic> _en = {
     "app_title": "Potato",
     "app_description": "Push Over The Air To",
-    "send_file": "Send file",
+    "send_file": "Send files",
     "see_files": "See files",
     "select_file_type": "Select file type",
     "file_type_any": "Any",
@@ -65,11 +65,28 @@ class CodegenLoader extends AssetLoader {
     "scan_code": "Scan code",
     "file_load_failed": "Failed to load file",
     "downloading_file": "Downloading file...",
+    "total": "Total",
+    "files": "Files",
+    "download_all": "Download all",
+    "files_page_content_section": "Content",
+    "secured_transfer": "Secured transfer",
+    "sending_files_without_leaving_a_trace":
+        "Sending files without leaving a trace",
+    "e2e_encrypted_transfer":
+        "End-to-end encrypted transfer, no account is required",
+    "copy_here_paste_anywhere": "Copy here, paste anywhere",
+    "scan_code_to_download": "Scan code to download",
+    "create_a_code_to_download": "Create a code to download",
+    "zero_knowledge": "Zero knowledge",
+    "ephemeral": "Ephemeral",
+    "open_source": "Open source",
+    "type_code_manually": "Type code manually",
+    "files_page_or": "or",
   };
   static const Map<String, dynamic> _fr = {
     "app_title": "Potato",
     "app_description": "Push Over The Air To",
-    "send_file": "Envoyer un fichier",
+    "send_file": "Envoyer des fichiers",
     "see_files": "Voir les fichiers",
     "select_file_type": "Sélectionnez le type de fichier",
     "file_type_any": "Peu importe",
@@ -118,6 +135,23 @@ class CodegenLoader extends AssetLoader {
     "scan_code": "Scanner un code",
     "file_load_failed": "Échec du chargement du fichier",
     "downloading_file": "Téléchargement du fichier...",
+    "total": "Total",
+    "files": "Fichiers",
+    "download_all": "Tout télécharger",
+    "files_page_content_section": "Contenu",
+    "secured_transfer": "Transfert sécurisé",
+    "sending_files_without_leaving_a_trace":
+        "Envoi de fichiers sans laisser de traces",
+    "e2e_encrypted_transfer":
+        "Transfert chiffré de bout en bout, aucun compte requis",
+    "copy_here_paste_anywhere": "Copiez ici, collez n'importe où",
+    "scan_code_to_download": "Scannez un code pour télécharger",
+    "create_a_code_to_download": "Créez un code à télécharger",
+    "zero_knowledge": "Zero knowledge",
+    "ephemeral": "Éphémère",
+    "open_source": "Open source",
+    "type_code_manually": "Tapez le code manuellement",
+    "files_page_or": "ou",
   };
   static const Map<String, Map<String, dynamic>> mapLocales = {
     "en": _en,

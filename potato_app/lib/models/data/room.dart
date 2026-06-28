@@ -24,3 +24,8 @@ abstract class ChunkInfos with _$ChunkInfos {
   factory ChunkInfos.fromJson(Map<String, dynamic> json) =>
       _$ChunkInfosFromJson(json);
 }
+
+extension RoomExtension on Room {
+  int get chunkCount =>
+      chunkInfos.fold(0, (sum, chunkInfo) => sum + chunkInfo.chunks.length);
+}
